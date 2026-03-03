@@ -45,6 +45,7 @@ export async function GET(req) {
     // Date filters
     const startDate = searchParams.get("startDate") || "";
     const endDate = searchParams.get("endDate") || "";
+    const exactDate = searchParams.get("date") || ""; // DD/MM/YYYY string match
 
     // Extra filters
     const status = searchParams.get("status") || "";
@@ -65,8 +66,11 @@ export async function GET(req) {
       ];
     }
 
-    // Date range filter
-    if (startDate && endDate) {
+    // Exact date filter (matches the string date field e.g. "03/02/2026")
+    if (exactDate) {
+      query.date = exactDate;
+    } else if (startDate && endDate) {
+      // Fallback: createdAt range filter
       query.createdAt = {
         $gte: new Date(startDate),
         $lte: new Date(new Date(endDate).setHours(23, 59, 59, 999)),

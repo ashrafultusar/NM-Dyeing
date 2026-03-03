@@ -51,6 +51,30 @@ export async function PUT(req, { params }) {
   }
 }
 
+// Set ledger initial amount
+export async function PATCH(req, { params }) {
+  try {
+    await connectDB();
+    const { initialAmount, initialAmountType } = await req.json();
+    if (typeof initialAmount !== "number" || initialAmount < 0)
+      return new Response(JSON.stringify({ error: "Invalid amount" }), { status: 400 });
+    if (!["charge", "payment"].includes(initialAmountType))
+      return new Response(JSON.stringify({ error: "Invalid type" }), { status: 400 });
+
+    const updated = await Customer.findByIdAndUpdate(
+      params.id,
+      { initialAmount, initialAmountType },
+      { new: true }
+    );
+    if (!updated)
+      return new Response(JSON.stringify({ error: "Customer not found" }), { status: 404 });
+
+    return new Response(JSON.stringify({ success: true, initialAmount: updated.initialAmount, initialAmountType: updated.initialAmountType }), { status: 200 });
+  } catch (err) {
+    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+  }
+}
+
 // Delete customer
 export async function DELETE(req, { params }) {
   try {

@@ -1,43 +1,53 @@
+import { NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import BillingSummary from "@/models/BillingSummary";
-import Dyeing from "@/models/Dyeing";
 import Payment from "@/models/Payment";
-import { NextResponse } from "next/server";
-
-
-
+import Dyeing from "@/models/Dyeing";
+import LedgerSnapshot from "@/models/LedgerSnapshot";
+import mongoose from "mongoose";
 
 export async function GET(req, { params }) {
   try {
     await connectDB();
-    const { dyeingId } =await params;
+    const resolvedParams = await params;
+    const { dyeingId } = resolvedParams;
 
-    const dyeing = await Dyeing.findById(dyeingId);
-    if (!dyeing) {
-      return NextResponse.json({ success: false });
+    if (!mongoose.Types.ObjectId.isValid(dyeingId)) {
+      return NextResponse.json({ success: false, message: "Invalid ID" }, { status: 400 });
     }
 
-    const billings = await BillingSummary.find({
-      dyeingId,
-      summaryType: "dyeing",
-    });
+    const objId = new mongoose.Types.ObjectId(dyeingId);
 
-    const payments = await Payment.find({
-      dyeingId,
-    });
+    // Latest snapshot — records AFTER this date belong to current (open) period
+    const latestSnapshot = await LedgerSnapshot.findOne(
+      { entityId: objId, entityType: "dyeing" },
+      { closedAt: 1 }
+    ).sort({ closedAt: -1 });
+
+    const fromDate = latestSnapshot ? latestSnapshot.closedAt : new Date(0);
+
+    const [dyeing, billings, payments] = await Promise.all([
+      Dyeing.findById(objId),
+      BillingSummary.find({ dyeingId: objId, summaryType: "dyeing", createdAt: { $gt: fromDate } }).sort({ createdAt: 1 }),
+      Payment.find({ dyeingId: objId, date: { $gt: fromDate } }).sort({ date: 1 }),
+    ]);
+
+    if (!dyeing) {
+      return NextResponse.json({ success: false, message: "Dyeing not found" }, { status: 404 });
+    }
 
     return NextResponse.json({
       success: true,
       data: {
-        customer: dyeing,
+        dyeing,
         billings,
         payments,
+        initialAmount: dyeing.initialAmount ?? 0,
+        initialAmountType: dyeing.initialAmountType ?? "charge",
       },
     });
-  } catch (err) {
-    return NextResponse.json(
-      { success: false, message: "Ledger fetch failed" },
-      { status: 500 }
-    );
+  } catch (error) {
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
+

@@ -10,6 +10,7 @@ const useOrders = (filters) => {
     dateRange,
     customStartDate,
     customEndDate,
+    exactDate,
     status,
     clotheType,
     finishingType,
@@ -23,7 +24,7 @@ const useOrders = (filters) => {
   const [loadingOrder, setLoadingOrder] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
 
- 
+
   const fetchOrders = async () => {
     let startDate = "";
     let endDate = "";
@@ -69,6 +70,7 @@ const useOrders = (filters) => {
         endDate,
       });
 
+      if (exactDate) params.append("date", exactDate);
       if (status) params.append("status", status);
       if (clotheType) params.append("clotheTypes", clotheType);
       if (finishingType) params.append("finishingType", finishingType);
@@ -88,7 +90,7 @@ const useOrders = (filters) => {
     }
   };
 
- 
+
   const fetchSingleOrder = async (id) => {
     setLoadingOrder(true);
     try {
@@ -105,7 +107,7 @@ const useOrders = (filters) => {
     }
   };
 
- 
+
   const deleteOrder = async (id) => {
     try {
       const res = await fetch(`/api/order/${id}`, { method: "DELETE" });
@@ -127,6 +129,7 @@ const useOrders = (filters) => {
     dateRange,
     customStartDate,
     customEndDate,
+    exactDate,
     status,
     clotheType,
     finishingType,
