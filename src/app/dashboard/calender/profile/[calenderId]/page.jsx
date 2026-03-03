@@ -317,7 +317,7 @@ export default function CalenderProfileLedger({ params }) {
     <>
       {showCloseModal && <CloseModal onClose={() => setShowCloseModal(false)} onConfirm={handleClose} loading={closeLoading} />}
       {showInitialModal && <InitialAmountModal current={initialAmount} currentType={initialAmountType} onClose={() => setShowInitialModal(false)} onConfirm={handleSetInitialAmount} loading={initialLoading} />}
-      <div className="max-w-6xl mx-auto p-3 sm:p-6 min-h-screen">
+      <div className="mt-12 md:mt-8 lg:mt-1 max-w-6xl mx-auto p-3 sm:p-6 min-h-screen">
         <button onClick={() => router.back()} className="flex items-center gap-2 bg-blue-100 px-2 py-1 rounded text-gray-600 hover:text-blue-600 font-bold text-sm mb-4 print:hidden"><FaArrowLeft size={14} /> BACK</button>
         <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden print:border-none print:shadow-none">
           <div className="p-5 sm:p-8 border-b border-gray-100 bg-white">
@@ -354,7 +354,7 @@ export default function CalenderProfileLedger({ params }) {
                   )}
                 </div>
                 {isCurrentView && (
-                  <button onClick={() => setShowInitialModal(true)} className="flex items-center gap-2 bg-indigo-500 text-white px-4 py-2.5 rounded-xl text-xs font-black hover:bg-indigo-600 transition whitespace-nowrap">
+                  <button onClick={() => setShowInitialModal(true)} className="cursor-pointer flex items-center gap-2 bg-indigo-500 text-white px-4 py-2.5 rounded-xl text-xs font-black hover:bg-indigo-600 transition whitespace-nowrap">
                     <FaEdit size={10} /> {initialAmount > 0 ? "Edit Initial" : "Set Initial"}
                   </button>
                 )}
@@ -363,7 +363,7 @@ export default function CalenderProfileLedger({ params }) {
                     <FaLock size={10} /> Close Ledger
                   </button>
                 )}
-                <button onClick={() => window.print()} className="bg-blue-600 text-white px-6 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap">PRINT REPORT</button>
+                <button onClick={() => window.print()} className="cursor-pointer bg-blue-600 text-white px-6 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap">PRINT REPORT</button>
               </div>
             </div>
             {!isCurrentView && activeSnapshot && (
