@@ -60,12 +60,12 @@ function InitialAmountModal({ current, currentType, onClose, onConfirm, loading 
             <label className="text-xs font-bold text-gray-600 uppercase tracking-wider block mb-1.5">Type *</label>
             <div className="grid grid-cols-2 gap-3">
               <button type="button" onClick={() => setType("charge")}
-                className={`py-3 rounded-xl border-2 text-sm font-black transition ${type === "charge" ? "border-red-400 bg-red-50 text-red-600" : "border-gray-200 text-gray-500 hover:bg-gray-50"}`}>
+                className={`py-3 cursor-pointer rounded-xl border-2 text-sm font-black transition ${type === "charge" ? "border-red-400 bg-red-50 text-red-600" : "border-gray-200 text-gray-500 hover:bg-gray-50"}`}>
                 Charge (+)
                 <p className="text-[10px] font-medium mt-0.5 opacity-70">Client আমার কাছে পাওনা</p>
               </button>
               <button type="button" onClick={() => setType("payment")}
-                className={`py-3 rounded-xl border-2 text-sm font-black transition ${type === "payment" ? "border-green-400 bg-green-50 text-green-600" : "border-gray-200 text-gray-500 hover:bg-gray-50"}`}>
+                className={`py-3 cursor-pointer rounded-xl border-2 text-sm font-black transition ${type === "payment" ? "border-green-400 bg-green-50 text-green-600" : "border-gray-200 text-gray-500 hover:bg-gray-50"}`}>
                 Payment (-)
                 <p className="text-[10px] font-medium mt-0.5 opacity-70">আমি client-কে দিতে হবে</p>
               </button>
@@ -75,8 +75,8 @@ function InitialAmountModal({ current, currentType, onClose, onConfirm, loading 
             <p className="text-[11px] text-indigo-700 font-medium">💡 এই amount ledger-এর সবার উপরে প্রথম row হিসেবে দেখাবে এবং balance calculation এখান থেকে শুরু হবে।</p>
           </div>
           <div className="flex gap-3">
-            <button type="button" onClick={onClose} className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-gray-600 text-sm font-bold hover:bg-gray-50">Cancel</button>
-            <button type="submit" disabled={loading} className="flex-1 px-4 py-2.5 rounded-xl bg-indigo-500 text-white text-sm font-black hover:bg-indigo-600 disabled:opacity-50 flex items-center justify-center gap-2">
+            <button type="button" onClick={onClose} className="cursor-pointer flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-gray-600 text-sm font-bold hover:bg-gray-50">Cancel</button>
+            <button type="submit" disabled={loading} className="cursor-pointer flex-1 px-4 py-2.5 rounded-xl bg-indigo-500 text-white text-sm font-black hover:bg-indigo-600 disabled:opacity-50 flex items-center justify-center gap-2">
               {loading ? <span className="animate-spin border-2 border-white border-t-transparent rounded-full w-4 h-4" /> : <><FaEdit size={12} /> Save</>}
             </button>
           </div>
@@ -317,8 +317,8 @@ export default function DyeingProfileLedger({ params }) {
     <>
       {showCloseModal && <CloseModal onClose={() => setShowCloseModal(false)} onConfirm={handleClose} loading={closeLoading} />}
       {showInitialModal && <InitialAmountModal current={initialAmount} currentType={initialAmountType} onClose={() => setShowInitialModal(false)} onConfirm={handleSetInitialAmount} loading={initialLoading} />}
-      <div className="max-w-6xl mx-auto p-3 sm:p-6 min-h-screen">
-        <button onClick={() => router.back()} className="flex items-center gap-2 bg-blue-100 px-2 py-1 rounded text-gray-600 hover:text-blue-600 font-bold text-sm mb-4 print:hidden"><FaArrowLeft size={14} /> BACK</button>
+      <div className="mt-12 md:mt-8 lg:mt-1 max-w-6xl mx-auto p-3 sm:p-6 min-h-screen">
+        <button onClick={() => router.back()} className="cursor-pointer flex items-center gap-2 bg-blue-100 px-2 py-1 rounded text-gray-600 hover:text-blue-600 font-bold text-sm mb-4 print:hidden"><FaArrowLeft size={14} /> BACK</button>
         <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden print:border-none print:shadow-none">
           <div className="p-5 sm:p-8 border-b border-gray-100 bg-white">
             <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
@@ -354,7 +354,7 @@ export default function DyeingProfileLedger({ params }) {
                   )}
                 </div>
                 {isCurrentView && (
-                  <button onClick={() => setShowInitialModal(true)} className="flex items-center gap-2 bg-indigo-500 text-white px-4 py-2.5 rounded-xl text-xs font-black hover:bg-indigo-600 transition whitespace-nowrap">
+                  <button onClick={() => setShowInitialModal(true)} className="flex cursor-pointer items-center gap-2 bg-indigo-500 text-white px-4 py-2.5 rounded-xl text-xs font-black hover:bg-indigo-600 transition whitespace-nowrap">
                     <FaEdit size={10} /> {initialAmount > 0 ? "Edit Initial" : "Set Initial"}
                   </button>
                 )}
