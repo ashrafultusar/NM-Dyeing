@@ -78,12 +78,12 @@ function InitialAmountModal({ current, currentType, onClose, onConfirm, loading 
             <label className="text-xs font-bold text-gray-600 uppercase tracking-wider block mb-1.5">Type *</label>
             <div className="grid grid-cols-2 gap-3">
               <button type="button" onClick={() => setType("charge")}
-                className={`py-3 rounded-xl border-2 text-sm font-black transition ${type === "charge" ? "border-red-400 bg-red-50 text-red-600" : "border-gray-200 text-gray-500 hover:bg-gray-50"}`}>
+                className={`py-3 cursor-pointer rounded-xl border-2 text-sm font-black transition ${type === "charge" ? "border-red-400 bg-red-50 text-red-600" : "border-gray-200 text-gray-500 hover:bg-gray-50"}`}>
                 Charge (+)
                 <p className="text-[10px] font-medium mt-0.5 opacity-70">Client আমার কাছে পাওনা</p>
               </button>
               <button type="button" onClick={() => setType("payment")}
-                className={`py-3 rounded-xl border-2 text-sm font-black transition ${type === "payment" ? "border-green-400 bg-green-50 text-green-600" : "border-gray-200 text-gray-500 hover:bg-gray-50"}`}>
+                className={`py-3 cursor-pointer rounded-xl border-2 text-sm font-black transition ${type === "payment" ? "border-green-400 bg-green-50 text-green-600" : "border-gray-200 text-gray-500 hover:bg-gray-50"}`}>
                 Payment (-)
                 <p className="text-[10px] font-medium mt-0.5 opacity-70">আমি client-কে দিতে হবে</p>
               </button>
@@ -93,8 +93,8 @@ function InitialAmountModal({ current, currentType, onClose, onConfirm, loading 
             <p className="text-[11px] text-indigo-700 font-medium">💡 এই amount ledger-এর সবার উপরে প্রথম row হিসেবে দেখাবে এবং balance calculation এখান থেকে শুরু হবে।</p>
           </div>
           <div className="flex gap-3 pt-1">
-            <button type="button" onClick={onClose} className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-gray-600 text-sm font-bold hover:bg-gray-50 transition">Cancel</button>
-            <button type="submit" disabled={loading} className="flex-1 px-4 py-2.5 rounded-xl bg-indigo-500 text-white text-sm font-black hover:bg-indigo-600 transition disabled:opacity-50 flex items-center justify-center gap-2">
+            <button type="button" onClick={onClose} className="flex-1 cursor-pointer px-4 py-2.5 rounded-xl border border-gray-200 text-gray-600 text-sm font-bold hover:bg-gray-50 transition">Cancel</button>
+            <button type="submit" disabled={loading} className="flex-1 cursor-pointer px-4 py-2.5 rounded-xl bg-indigo-500 text-white text-sm font-black hover:bg-indigo-600 transition disabled:opacity-50 flex items-center justify-center gap-2">
               {loading ? <span className="animate-spin border-2 border-white border-t-transparent rounded-full w-4 h-4" /> : <><FaEdit size={12} /> Save</>}
             </button>
           </div>
@@ -375,8 +375,8 @@ export default function CustomerProfileLedger({ params }) {
     <>
       {showCloseModal && <CloseModal onClose={() => setShowCloseModal(false)} onConfirm={handleClose} loading={closeLoading} />}
       {showInitialModal && <InitialAmountModal current={initialAmount} currentType={initialAmountType} onClose={() => setShowInitialModal(false)} onConfirm={handleSetInitialAmount} loading={initialLoading} />}
-      <div className="max-w-6xl mx-auto p-3 sm:p-6 min-h-screen">
-        <button onClick={() => router.back()} className="flex items-center gap-2 bg-blue-100 px-2 py-1 rounded text-gray-600 hover:text-blue-600 font-bold text-sm mb-4 print:hidden">
+      <div className="mt-10 md:mt-8 lg:mt-1 max-w-6xl mx-auto p-3 sm:p-6 min-h-screen ">
+        <button onClick={() => router.back()} className=" flex items-center gap-2 bg-blue-100 px-2 py-1 rounded text-gray-600 hover:text-blue-600 font-bold text-sm mb-4 print:hidden cursor-pointer">
           <FaArrowLeft size={14} /> BACK
         </button>
         <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden print:border-none print:shadow-none">
@@ -392,21 +392,21 @@ export default function CustomerProfileLedger({ params }) {
               </div>
               <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto print:hidden">
                 <div className="relative">
-                  <button onClick={() => setDropdownOpen(p => !p)} className="flex items-center gap-2 border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-gray-50 transition w-full sm:w-auto whitespace-nowrap">
+                  <button onClick={() => setDropdownOpen(p => !p)} className="flex cursor-pointer items-center gap-2 border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-gray-50 transition w-full sm:w-auto whitespace-nowrap">
                     {selectedLabel}
                     <FaChevronDown size={10} className={`transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
                   </button>
                   {dropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-100 z-40 py-1 overflow-hidden">
-                      <button onClick={() => { setSelectedView("current"); setDropdownOpen(false); }} className={`w-full text-left px-4 py-2.5 text-xs font-bold hover:bg-blue-50 flex items-center gap-2 transition ${isCurrentView ? "text-blue-600 bg-blue-50" : "text-gray-700"}`}>
+                    <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-100 z-40 py-1 overflow-hidden ">
+                      <button onClick={() => { setSelectedView("current"); setDropdownOpen(false); }} className={`w-full text-left cursor-pointer px-4 py-2.5 text-xs font-bold hover:bg-blue-50 flex items-center gap-2 transition ${isCurrentView ? "text-blue-600 bg-blue-50" : "text-gray-700"}`}>
                         📂 Current Ledger {isCurrentView && <FaCheckCircle size={10} className="ml-auto text-blue-500" />}
                       </button>
                       {snapshots.length > 0 && (
                         <>
                           <div className="border-t border-gray-100 my-1" />
-                          <p className="px-4 py-1 text-[9px] text-gray-400 font-black uppercase tracking-widest">Closed Ledgers</p>
+                          <p className="px-4 py-1 text-[9px] text-gray-400 font-black uppercase tracking-widest cursor-pointer">Closed Ledgers</p>
                           {snapshots.map(snap => (
-                            <button key={snap._id} onClick={() => { setSelectedView(snap._id); setDropdownOpen(false); }} className={`w-full text-left px-4 py-2.5 hover:bg-gray-50 transition flex items-start gap-2 ${selectedView === snap._id ? "bg-gray-50" : ""}`}>
+                            <button key={snap._id} onClick={() => { setSelectedView(snap._id); setDropdownOpen(false); }} className={`w-full text-left px-4 py-2.5 hover:bg-gray-50 transition cursor-pointer flex items-start gap-2 ${selectedView === snap._id ? "bg-gray-50" : ""}`}>
                               <FaLock size={9} className="text-gray-400 mt-0.5 shrink-0" />
                               <div><p className="text-xs font-bold text-gray-800">{snap.title}</p><p className="text-[10px] text-gray-400">{fmtDate(snap.closedAt)}</p></div>
                               {selectedView === snap._id && <FaCheckCircle size={10} className="ml-auto text-blue-500 mt-0.5 shrink-0" />}
@@ -418,7 +418,7 @@ export default function CustomerProfileLedger({ params }) {
                   )}
                 </div>
                 {isCurrentView && (
-                  <button onClick={() => setShowInitialModal(true)} className="flex items-center gap-2 bg-indigo-500 text-white px-4 py-2.5 rounded-xl text-xs font-black hover:bg-indigo-600 transition whitespace-nowrap">
+                  <button onClick={() => setShowInitialModal(true)} className="flex cursor-pointer items-center gap-2 bg-indigo-500 text-white px-4 py-2.5 rounded-xl text-xs font-black hover:bg-indigo-600 transition whitespace-nowrap">
                     <FaEdit size={10} /> {initialAmount > 0 ? "Edit Initial" : "Set Initial"}
                   </button>
                 )}
