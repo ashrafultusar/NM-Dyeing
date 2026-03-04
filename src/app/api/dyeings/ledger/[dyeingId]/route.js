@@ -29,7 +29,7 @@ export async function GET(req, { params }) {
     const [dyeing, billings, payments] = await Promise.all([
       Dyeing.findById(objId),
       BillingSummary.find({ dyeingId: objId, summaryType: "dyeing", createdAt: { $gt: fromDate } }).sort({ createdAt: 1 }),
-      Payment.find({ dyeingId: objId, date: { $gt: fromDate } }).sort({ date: 1 }),
+      Payment.find({ dyeingId: objId, createdAt: { $gt: fromDate } }).sort({ date: 1 }),
     ]);
 
     if (!dyeing) {
@@ -42,8 +42,10 @@ export async function GET(req, { params }) {
         dyeing,
         billings,
         payments,
-        initialAmount: dyeing.initialAmount ?? 0,
-        initialAmountType: dyeing.initialAmountType ?? "charge",
+        openingBalance: latestSnapshot ? latestSnapshot.finalBalance : 0,
+        initialCharge: dyeing.initialCharge ?? 0,
+        initialPayment: dyeing.initialPayment ?? 0,
+        initialDate: dyeing.initialDate ?? null,
       },
     });
   } catch (error) {

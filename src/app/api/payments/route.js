@@ -16,7 +16,9 @@ export async function GET(req) {
     else if (type === "calendar") query = { calenderId: id }; 
     else query = { user: id };
 
-    const payments = await Payment.find(query).sort({ date: -1 }).lean();
+    const payments = await Payment.find(query)
+  .sort({ date: -1, _id: -1 }) 
+  .lean();
     return NextResponse.json(payments);
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

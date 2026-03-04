@@ -60,10 +60,10 @@ export default function Page() {
         return;
       }
 
-     if (Array.isArray(data)) {
-      setPayments(data);
-      setTotal(data.reduce((t, p) => t + Number(p.amount), 0));
-    }
+      if (Array.isArray(data)) {
+        setPayments(data);
+        setTotal(data.reduce((t, p) => t + Number(p.amount), 0));
+      }
     } catch (err) {
       console.error("Fetch error", err);
     }
