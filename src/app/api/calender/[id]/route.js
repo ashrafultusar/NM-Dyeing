@@ -37,21 +37,21 @@ export async function PUT(req, { params }) {
 export async function PATCH(req, { params }) {
   try {
     await connectDB();
-    const { initialAmount, initialAmountType } = await req.json();
-    if (typeof initialAmount !== "number" || initialAmount < 0)
-      return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
-    if (!["charge", "payment"].includes(initialAmountType))
-      return NextResponse.json({ error: "Invalid type" }, { status: 400 });
+    const { initialCharge, initialPayment, initialDate } = await req.json();
+    if (typeof initialCharge !== "number" || initialCharge < 0)
+      return NextResponse.json({ error: "Invalid charge amount" }, { status: 400 });
+    if (typeof initialPayment !== "number" || initialPayment < 0)
+      return NextResponse.json({ error: "Invalid payment amount" }, { status: 400 });
 
     const updated = await Calender.findByIdAndUpdate(
       params.id,
-      { initialAmount, initialAmountType },
+      { initialCharge, initialPayment, initialDate: initialDate || null },
       { new: true }
     );
     if (!updated)
       return NextResponse.json({ error: "Calender not found" }, { status: 404 });
 
-    return NextResponse.json({ success: true, initialAmount: updated.initialAmount, initialAmountType: updated.initialAmountType });
+    return NextResponse.json({ success: true, initialCharge: updated.initialCharge, initialPayment: updated.initialPayment, initialDate: updated.initialDate });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

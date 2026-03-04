@@ -29,7 +29,7 @@ export async function GET(req, { params }) {
     const [customer, billings, payments] = await Promise.all([
       customers.findById(objId),
       BillingSummary.find({ customerId: objId, createdAt: { $gt: fromDate } }).sort({ createdAt: 1 }),
-      Payment.find({ userId: objId, date: { $gt: fromDate } }).sort({ date: 1 }),
+      Payment.find({ userId: objId, createdAt: { $gt: fromDate } }).sort({ date: 1 }),
     ]);
 
     if (!customer) {
@@ -42,8 +42,10 @@ export async function GET(req, { params }) {
         customer,
         billings,
         payments,
-        initialAmount: customer.initialAmount ?? 0,
-        initialAmountType: customer.initialAmountType ?? "charge",
+        openingBalance: latestSnapshot ? latestSnapshot.finalBalance : 0,
+        initialCharge: customer.initialCharge ?? 0,
+        initialPayment: customer.initialPayment ?? 0,
+        initialDate: customer.initialDate ?? null,
       },
     });
   } catch (error) {

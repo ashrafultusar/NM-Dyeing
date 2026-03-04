@@ -11,8 +11,9 @@ const DyeingSchema = new mongoose.Schema(
     name: { type: String, required: true },
     location: { type: String, required: true },
     employees: [EmployeeSchema],
-    initialAmount: { type: Number, default: 0 },
-    initialAmountType: { type: String, enum: ["charge", "payment"], default: "charge" },
+    initialCharge: { type: Number, default: 0 },
+    initialPayment: { type: Number, default: 0 },
+    initialDate: { type: Date, default: null },
   },
   { timestamps: true }
 );

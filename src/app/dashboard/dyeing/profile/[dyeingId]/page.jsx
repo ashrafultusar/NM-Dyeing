@@ -5,10 +5,10 @@ import React, { useEffect, useState, use, useCallback } from "react";
 import { FaArrowLeft, FaChevronDown, FaLock, FaTimes, FaCheckCircle, FaEdit } from "react-icons/fa";
 import { toast } from "react-toastify";
 
-function buildLedger(billings, payments, openingBalance = 0, initialAmount = 0, initialAmountType = "charge") {
+function buildLedger(billings, payments, openingBalance = 0, initialCharge = 0, initialPayment = 0) {
   let startBal = openingBalance;
-  if (initialAmount > 0) {
-    startBal += initialAmountType === "payment" ? initialAmount : -initialAmount;
+  if (initialCharge > 0 || initialPayment > 0) {
+    startBal += initialPayment - initialCharge;
   }
   const combined = [
     ...billings.map((b) => ({
@@ -29,14 +29,18 @@ function buildLedger(billings, payments, openingBalance = 0, initialAmount = 0, 
 
 function fmtDate(d) { return new Date(d).toLocaleDateString("en-GB"); }
 
-function InitialAmountModal({ current, currentType, onClose, onConfirm, loading }) {
-  const [amount, setAmount] = useState(current > 0 ? String(current) : "");
-  const [type, setType] = useState(currentType || "charge");
+function InitialAmountModal({ initCharge, initPayment, initDate, onClose, onConfirm, loading }) {
+  const [chargeAmount, setChargeAmount] = useState(initCharge > 0 ? String(initCharge) : "");
+  const [paymentAmount, setPaymentAmount] = useState(initPayment > 0 ? String(initPayment) : "");
+  const [dateVal, setDateVal] = useState(initDate ? new Date(initDate).toISOString().split('T')[0] : "");
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    const val = parseFloat(amount);
-    if (!amount || isNaN(val) || val < 0) return toast.error("Valid amount দিন");
-    onConfirm(val, type);
+    const cVal = parseFloat(chargeAmount) || 0;
+    const pVal = parseFloat(paymentAmount) || 0;
+    if (cVal < 0 || pVal < 0) return toast.error("Valid amount দিন");
+    if (chargeAmount === "" && paymentAmount === "") return toast.error("Charge বা Payment দিন");
+    onConfirm(cVal, pVal, dateVal || null);
   };
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
@@ -50,29 +54,30 @@ function InitialAmountModal({ current, currentType, onClose, onConfirm, loading 
           </div>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="text-xs font-bold text-gray-600 uppercase tracking-wider block mb-1.5">Amount (৳) *</label>
-            <input autoFocus type="number" min="0" step="any" value={amount} onChange={(e) => setAmount(e.target.value)}
-              placeholder="যেমন: 5000"
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent" />
-          </div>
-          <div>
-            <label className="text-xs font-bold text-gray-600 uppercase tracking-wider block mb-1.5">Type *</label>
-            <div className="grid grid-cols-2 gap-3">
-              <button type="button" onClick={() => setType("charge")}
-                className={`py-3 cursor-pointer rounded-xl border-2 text-sm font-black transition ${type === "charge" ? "border-red-400 bg-red-50 text-red-600" : "border-gray-200 text-gray-500 hover:bg-gray-50"}`}>
-                Charge (+)
-                <p className="text-[10px] font-medium mt-0.5 opacity-70">Client আমার কাছে পাওনা</p>
-              </button>
-              <button type="button" onClick={() => setType("payment")}
-                className={`py-3 cursor-pointer rounded-xl border-2 text-sm font-black transition ${type === "payment" ? "border-green-400 bg-green-50 text-green-600" : "border-gray-200 text-gray-500 hover:bg-gray-50"}`}>
-                Payment (-)
-                <p className="text-[10px] font-medium mt-0.5 opacity-70">আমি client-কে দিতে হবে</p>
-              </button>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-bold text-gray-600 uppercase tracking-wider block mb-1.5 text-red-600">Charge (+)</label>
+              <input type="number" min="0" step="any" value={chargeAmount} onChange={(e) => setChargeAmount(e.target.value)}
+                placeholder="0"
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-transparent" />
+              <p className="text-[10px] font-medium mt-1 text-gray-500">Client আমার কাছে পাওনা</p>
+            </div>
+            <div>
+              <label className="text-xs font-bold text-gray-600 uppercase tracking-wider block mb-1.5 text-green-600">Payment (-)</label>
+              <input type="number" min="0" step="any" value={paymentAmount} onChange={(e) => setPaymentAmount(e.target.value)}
+                placeholder="0"
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent" />
+              <p className="text-[10px] font-medium mt-1 text-gray-500">আমি client-কে দিতে হবে</p>
             </div>
           </div>
+          <div>
+            <label className="text-xs font-bold text-gray-600 uppercase tracking-wider block mb-1.5">Date (Optional)</label>
+            <input type="date" value={dateVal} onChange={(e) => setDateVal(e.target.value)}
+              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent" />
+            <p className="text-[10px] font-medium mt-1 text-gray-500">যে দিন Initial Amount টি যুক্ত করা হয়েছিল</p>
+          </div>
           <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-3">
-            <p className="text-[11px] text-indigo-700 font-medium">💡 এই amount ledger-এর সবার উপরে প্রথম row হিসেবে দেখাবে এবং balance calculation এখান থেকে শুরু হবে।</p>
+            <p className="text-[11px] text-indigo-700 font-medium">💡 আপনি চাইলে শুধু Charge, শুধু Payment, অথবা দুটি একসাথেই save করতে পারবেন। এটি ledger-এর সবার উপরে দেখাবে。</p>
           </div>
           <div className="flex gap-3">
             <button type="button" onClick={onClose} className="cursor-pointer flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-gray-600 text-sm font-bold hover:bg-gray-50">Cancel</button>
@@ -117,9 +122,9 @@ function CloseModal({ onClose, onConfirm, loading }) {
   );
 }
 
-function LedgerTable({ rows, openingBalance, initialAmount, initialAmountType }) {
-  const hasInitial = initialAmount > 0;
-  const initialBalance = hasInitial ? (initialAmountType === "payment" ? initialAmount : -initialAmount) : 0;
+function LedgerTable({ rows, openingBalance, initialCharge, initialPayment, initialDate }) {
+  const hasInitial = initialCharge > 0 || initialPayment > 0;
+  const initialBalance = (initialPayment || 0) - (initialCharge || 0);
   const effectiveOpening = openingBalance + initialBalance;
   if (!rows.length && !hasInitial && openingBalance === 0) {
     return <div className="py-20 text-center"><p className="text-gray-400 font-bold text-sm uppercase">কোনো data নেই</p><p className="text-gray-300 text-xs mt-1">নতুন bill যোগ হলে এখানে দেখাবে</p></div>;
@@ -149,13 +154,13 @@ function LedgerTable({ rows, openingBalance, initialAmount, initialAmountType })
           )}
           {hasInitial && (
             <tr className="bg-indigo-50/60">
-              <td className="px-4 py-3 text-[11px] font-medium text-indigo-600">—</td>
+              <td className="px-4 py-3 text-[11px] font-medium text-indigo-600">{initialDate ? fmtDate(initialDate) : "—"}</td>
               <td className="px-4 py-3">
-                <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase ${initialAmountType === "payment" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>INITIAL</span>
+                <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase ${initialPayment > 0 && initialCharge === 0 ? "bg-green-100 text-green-700" : (initialCharge > 0 && initialPayment === 0 ? "bg-red-100 text-red-700" : "bg-indigo-100 text-indigo-700")}`}>INITIAL</span>
               </td>
               <td className="px-4 py-3 text-xs font-bold text-indigo-700">Opening Balance (শুরুর পুরনো হিসাব)</td>
-              <td className="px-4 py-3 text-right text-[11px] font-bold text-gray-700">{initialAmountType === "charge" ? `৳${initialAmount.toLocaleString()}` : "—"}</td>
-              <td className="px-4 py-3 text-right text-[11px] font-bold text-green-600">{initialAmountType === "payment" ? `৳${initialAmount.toLocaleString()}` : "—"}</td>
+              <td className="px-4 py-3 text-right text-[11px] font-bold text-gray-700">{initialCharge > 0 ? `৳${initialCharge.toLocaleString()}` : "—"}</td>
+              <td className="px-4 py-3 text-right text-[11px] font-bold text-green-600">{initialPayment > 0 ? `৳${initialPayment.toLocaleString()}` : "—"}</td>
               <td className="px-4 py-3 text-right">
                 <div className={`text-xs font-black px-2 py-1 rounded ${effectiveOpening < 0 ? "text-red-600 bg-red-50" : "text-teal-600 bg-teal-50"}`}>
                   {effectiveOpening < 0 ? `- ৳${Math.abs(effectiveOpening).toLocaleString()}` : `+ ৳${effectiveOpening.toLocaleString()}`}
@@ -226,8 +231,9 @@ export default function DyeingProfileLedger({ params }) {
   const [dyeing, setDyeing] = useState(null);
   const [currentLedger, setCurrentLedger] = useState([]);
   const [openingBalance, setOpeningBalance] = useState(0);
-  const [initialAmount, setInitialAmount] = useState(0);
-  const [initialAmountType, setInitialAmountType] = useState("charge");
+  const [initialCharge, setInitialCharge] = useState(0);
+  const [initialPayment, setInitialPayment] = useState(0);
+  const [initialDate, setInitialDate] = useState(null);
   const [snapshots, setSnapshots] = useState([]);
   const [snapshotCache, setSnapshotCache] = useState({});
   const [pageLoading, setPageLoading] = useState(true);
@@ -237,10 +243,11 @@ export default function DyeingProfileLedger({ params }) {
       const res = await fetch(`/api/dyeings/ledger/${dyeingId}`);
       const result = await res.json();
       if (result.success) {
-        const { dyeing: d, billings, payments, openingBalance: ob = 0, initialAmount: ia = 0, initialAmountType: iat = "charge" } = result.data;
+        const { dyeing: d, billings, payments, openingBalance: ob = 0, initialCharge: ic = 0, initialPayment: ip = 0, initialDate: id = null } = result.data;
         setDyeing(d); setOpeningBalance(ob);
-        setInitialAmount(ia); setInitialAmountType(iat);
-        setCurrentLedger(buildLedger(billings, payments, ob, ia, iat));
+        setInitialCharge(ic); setInitialPayment(ip);
+        setInitialDate(id);
+        setCurrentLedger(buildLedger(billings, payments, ob, ic, ip));
       }
     } catch { toast.error("Failed to load ledger"); }
   }, [dyeingId]);
@@ -285,12 +292,12 @@ export default function DyeingProfileLedger({ params }) {
     finally { setCloseLoading(false); }
   };
 
-  const handleSetInitialAmount = async (amount, type) => {
+  const handleSetInitialAmount = async (charge, payment, date) => {
     setInitialLoading(true);
     try {
       const res = await fetch(`/api/dyeings/${dyeingId}`, {
         method: "PATCH", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ initialAmount: amount, initialAmountType: type }),
+        body: JSON.stringify({ initialCharge: charge, initialPayment: payment, initialDate: date }),
       });
       const result = await res.json();
       if (result.success) {
@@ -316,7 +323,7 @@ export default function DyeingProfileLedger({ params }) {
   return (
     <>
       {showCloseModal && <CloseModal onClose={() => setShowCloseModal(false)} onConfirm={handleClose} loading={closeLoading} />}
-      {showInitialModal && <InitialAmountModal current={initialAmount} currentType={initialAmountType} onClose={() => setShowInitialModal(false)} onConfirm={handleSetInitialAmount} loading={initialLoading} />}
+      {showInitialModal && <InitialAmountModal initCharge={initialCharge} initPayment={initialPayment} initDate={initialDate} onClose={() => setShowInitialModal(false)} onConfirm={handleSetInitialAmount} loading={initialLoading} />}
       <div className="mt-12 md:mt-8 lg:mt-1 max-w-6xl mx-auto p-3 sm:p-6 min-h-screen">
         <button onClick={() => router.back()} className="cursor-pointer flex items-center gap-2 bg-blue-100 px-2 py-1 rounded text-gray-600 hover:text-blue-600 font-bold text-sm mb-4 print:hidden"><FaArrowLeft size={14} /> BACK</button>
         <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden print:border-none print:shadow-none">
@@ -355,7 +362,7 @@ export default function DyeingProfileLedger({ params }) {
                 </div>
                 {isCurrentView && (
                   <button onClick={() => setShowInitialModal(true)} className="flex cursor-pointer items-center gap-2 bg-indigo-500 text-white px-4 py-2.5 rounded-xl text-xs font-black hover:bg-indigo-600 transition whitespace-nowrap">
-                    <FaEdit size={10} /> {initialAmount > 0 ? "Edit Initial" : "Set Initial"}
+                    <FaEdit size={10} /> {(initialCharge > 0 || initialPayment > 0) ? "Edit Initial" : "Set Initial"}
                   </button>
                 )}
                 {isCurrentView && currentLedger.length > 0 && (
@@ -375,8 +382,9 @@ export default function DyeingProfileLedger({ params }) {
           {!isCurrentView && !activeSnapshot
             ? <div className="py-20 text-center animate-pulse"><p className="text-gray-400 font-bold text-sm">Loading snapshot...</p></div>
             : <LedgerTable rows={displayRows} openingBalance={displayOpeningBalance}
-              initialAmount={isCurrentView ? initialAmount : 0}
-              initialAmountType={isCurrentView ? initialAmountType : "charge"} />
+              initialCharge={isCurrentView ? initialCharge : (activeSnapshot?.initialCharge ?? 0)}
+              initialPayment={isCurrentView ? initialPayment : (activeSnapshot?.initialPayment ?? 0)}
+              initialDate={isCurrentView ? initialDate : (activeSnapshot?.initialDate ?? null)} />
           }
           <SummaryFooter totalCharge={totalCharge} totalPayment={totalPayment} finalBalance={finalBalance} />
           <div className="p-6 sm:p-8 flex flex-col sm:flex-row justify-between items-center gap-8 bg-white">

@@ -36,11 +36,15 @@ export async function POST(req, { params }) {
         const [calender, billings, payments] = await Promise.all([
             Calender.findById(objId),
             BillingSummary.find({ calenderId: objId, summaryType: "calender", createdAt: { $gt: fromDate } }).sort({ createdAt: 1 }),
-            Payment.find({ calenderId: objId, date: { $gt: fromDate } }).sort({ date: 1 }),
+            Payment.find({ calenderId: objId, createdAt: { $gt: fromDate } }).sort({ date: 1 }),
         ]);
 
         if (!calender) return NextResponse.json({ success: false, message: "Calender not found" }, { status: 404 });
-        if (!billings.length && !payments.length) {
+
+        // Either this ledger has new billing/payment activity, OR we are just closing it to archive the `initialAmount`
+        const hasInitial = (calender.initialCharge > 0 || calender.initialPayment > 0);
+
+        if (!billings.length && !payments.length && !hasInitial) {
             return NextResponse.json({ success: false, message: "কোনো data নেই close করার জন্য" }, { status: 400 });
         }
 
@@ -59,8 +63,13 @@ export async function POST(req, { params }) {
 
         combined.sort((a, b) => new Date(a.date) - new Date(b.date));
 
-        // Balance starts from openingBalance (carry-forward from previous period)
-        let bal = openingBalance;
+        // Balance starts from openingBalance AND Initial Amounts (if applicable)
+        const initialCharge = calender.initialCharge || 0;
+        const initialPayment = calender.initialPayment || 0;
+        const initialDate = calender.initialDate || null;
+
+        let bal = openingBalance + initialPayment - initialCharge;
+
         const ledgerData = combined.map(item => {
             bal += item.payment - item.charge;
             return { ...item, balance: bal };
@@ -68,7 +77,7 @@ export async function POST(req, { params }) {
 
         const totalCharge = ledgerData.reduce((s, r) => s + r.charge, 0);
         const totalPayment = ledgerData.reduce((s, r) => s + r.payment, 0);
-        const finalBalance = openingBalance + totalPayment - totalCharge;
+        const finalBalance = openingBalance + initialPayment - initialCharge + totalPayment - totalCharge;
 
         const snapshot = await LedgerSnapshot.create({
             entityId: objId, entityType: "calender",
@@ -76,9 +85,13 @@ export async function POST(req, { params }) {
             ledgerData, totalCharge, totalPayment,
             finalBalance,
             openingBalance,
+            initialCharge,
+            initialPayment,
+            initialDate,
         });
 
-        return NextResponse.json({ success: true, message: "Calender Ledger closed successfully", snapshotId: snapshot._id });
+        // Wipe initial info from actual entity so it isn't carried double into next snapshot
+        await Calender.findByIdAndUpdate(objId, { initialCharge: 0, initialPayment: 0, initialDate: null }); return NextResponse.json({ success: true, message: "Calender Ledger closed successfully", snapshotId: snapshot._id });
     } catch (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }

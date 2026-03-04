@@ -29,7 +29,7 @@ export async function GET(req, { params }) {
     const [calender, billings, payments] = await Promise.all([
       Calender.findById(objId),
       BillingSummary.find({ calenderId: objId, summaryType: "calender", createdAt: { $gt: fromDate } }).sort({ createdAt: 1 }),
-      Payment.find({ calenderId: objId, date: { $gt: fromDate } }).sort({ date: 1 }),
+      Payment.find({ calenderId: objId, createdAt: { $gt: fromDate } }).sort({ date: 1 }),
     ]);
 
     if (!calender) {
@@ -42,8 +42,10 @@ export async function GET(req, { params }) {
         calender,
         billings,
         payments,
-        initialAmount: calender.initialAmount ?? 0,
-        initialAmountType: calender.initialAmountType ?? "charge",
+        openingBalance: latestSnapshot ? latestSnapshot.finalBalance : 0,
+        initialCharge: calender.initialCharge ?? 0,
+        initialPayment: calender.initialPayment ?? 0,
+        initialDate: calender.initialDate ?? null,
       },
     });
   } catch (error) {
