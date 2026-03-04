@@ -17,10 +17,32 @@ const geistMono = Geist_Mono({
 
 export const metadata = {
   title: {
-    default: "NM",
+    default: "NM | Garments Inventory Management",
     template: "%s | NM",
   },
-  description: "Garments Inventory Application",
+  description: "NM is a comprehensive Garments Inventory Application designed for efficient stock tracking, order management, and real-time analytics in the apparel industry.",
+  keywords: ["garments inventory", "inventory management system", "apparel stock tracking", "NM inventory"],
+  authors: [{ name: "NM Team" }],
+  creator: "NM",
+  publisher: "NM Inc.",
+  viewport: "width=device-width, initial-scale=1",
+  openGraph: {
+    title: "NM - Garments Inventory Solution",
+    description: "Streamline your garments business with our advanced inventory tracking system.",
+    url: "https://yourdomain.com", 
+    siteName: "NM Inventory",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "NM | Garments Inventory Management",
+    description: "Manage your garments production and stock effortlessly.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({ children }) {
