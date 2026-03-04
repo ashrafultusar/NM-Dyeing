@@ -36,11 +36,15 @@ export async function POST(req, { params }) {
         const [customer, billings, payments] = await Promise.all([
             customers.findById(objId),
             BillingSummary.find({ customerId: objId, createdAt: { $gt: fromDate } }).sort({ createdAt: 1 }),
-            Payment.find({ userId: objId, date: { $gt: fromDate } }).sort({ date: 1 }),
+            Payment.find({ userId: objId, createdAt: { $gt: fromDate } }).sort({ date: 1 }),
         ]);
 
         if (!customer) return NextResponse.json({ success: false, message: "Customer not found" }, { status: 404 });
-        if (!billings.length && !payments.length) {
+
+        // Either this ledger has new billing/payment activity, OR we are just closing it to archive the `initialAmount`
+        const hasInitial = (customer.initialCharge > 0 || customer.initialPayment > 0);
+
+        if (!billings.length && !payments.length && !hasInitial) {
             return NextResponse.json({ success: false, message: "কোনো data নেই close করার জন্য" }, { status: 400 });
         }
 
@@ -59,8 +63,12 @@ export async function POST(req, { params }) {
 
         combined.sort((a, b) => new Date(a.date) - new Date(b.date));
 
-        // Balance starts from openingBalance (carry-forward from previous period)
-        let bal = openingBalance;
+        // Balance starts from openingBalance AND Initial Amounts (if applicable)
+        const initialCharge = customer.initialCharge || 0;
+        const initialPayment = customer.initialPayment || 0;
+        const initialDate = customer.initialDate || null;
+
+        let bal = openingBalance + initialPayment - initialCharge;
         const ledgerData = combined.map(item => {
             bal += item.payment - item.charge;
             return { ...item, balance: bal };
@@ -68,7 +76,7 @@ export async function POST(req, { params }) {
 
         const totalCharge = ledgerData.reduce((s, r) => s + r.charge, 0);
         const totalPayment = ledgerData.reduce((s, r) => s + r.payment, 0);
-        const finalBalance = openingBalance + totalPayment - totalCharge;
+        const finalBalance = openingBalance + initialPayment - initialCharge + totalPayment - totalCharge;
 
         const snapshot = await LedgerSnapshot.create({
             entityId: objId, entityType: "customer",
@@ -76,7 +84,13 @@ export async function POST(req, { params }) {
             ledgerData, totalCharge, totalPayment,
             finalBalance,   // correct closing balance including carry-forward
             openingBalance, // store for reference
+            initialCharge,
+            initialPayment,
+            initialDate,
         });
+
+        // Wipe initial info from actual entity so it isn't carried double into next snapshot
+        await customers.findByIdAndUpdate(objId, { initialCharge: 0, initialPayment: 0, initialDate: null });
 
         return NextResponse.json({ success: true, message: "Ledger closed successfully", snapshotId: snapshot._id });
     } catch (error) {

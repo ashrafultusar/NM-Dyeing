@@ -55,21 +55,21 @@ export async function PUT(req, { params }) {
 export async function PATCH(req, { params }) {
   try {
     await connectDB();
-    const { initialAmount, initialAmountType } = await req.json();
-    if (typeof initialAmount !== "number" || initialAmount < 0)
-      return new Response(JSON.stringify({ error: "Invalid amount" }), { status: 400 });
-    if (!["charge", "payment"].includes(initialAmountType))
-      return new Response(JSON.stringify({ error: "Invalid type" }), { status: 400 });
+    const { initialCharge, initialPayment, initialDate } = await req.json();
+    if (typeof initialCharge !== "number" || initialCharge < 0)
+      return new Response(JSON.stringify({ error: "Invalid charge amount" }), { status: 400 });
+    if (typeof initialPayment !== "number" || initialPayment < 0)
+      return new Response(JSON.stringify({ error: "Invalid payment amount" }), { status: 400 });
 
     const updated = await Customer.findByIdAndUpdate(
       params.id,
-      { initialAmount, initialAmountType },
+      { initialCharge, initialPayment, initialDate: initialDate || null },
       { new: true }
     );
     if (!updated)
       return new Response(JSON.stringify({ error: "Customer not found" }), { status: 404 });
 
-    return new Response(JSON.stringify({ success: true, initialAmount: updated.initialAmount, initialAmountType: updated.initialAmountType }), { status: 200 });
+    return new Response(JSON.stringify({ success: true, initialCharge: updated.initialCharge, initialPayment: updated.initialPayment, initialDate: updated.initialDate }), { status: 200 });
   } catch (err) {
     return new Response(JSON.stringify({ error: err.message }), { status: 500 });
   }

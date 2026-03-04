@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import LedgerSnapshot from "@/models/LedgerSnapshot";
 import mongoose from "mongoose";
-
+ 
 export async function GET(req, { params }) {
     try {
         await connectDB();

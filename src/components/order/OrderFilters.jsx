@@ -166,7 +166,7 @@ const OrderFilters = ({
         {/* More Filters Button */}
         <button
           onClick={() => setShowMoreFilters(!showMoreFilters)}
-          className="text-blue-600 border border-gray-300 rounded px-4 py-2 min-w-[150px] ml-auto"
+          className="cursor-pointer text-blue-600 border border-gray-300 rounded px-4 py-2 min-w-[150px] ml-auto"
           type="button"
         >
           {showMoreFilters ? "Hide Filters" : "More Filters"}

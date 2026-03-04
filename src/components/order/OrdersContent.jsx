@@ -8,10 +8,9 @@ import PaginationControls from "@/components/order/PaginationControls";
 import useAppData from "@/hook/useAppData";
 import useOrders from "@/hook/useOrder";
 import Link from "next/link";
-import { Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Plus, ShoppingCart } from "lucide-react";
-
 
 export const OrdersContent = () => {
   const { data } = useAppData();
@@ -33,7 +32,6 @@ export const OrdersContent = () => {
   const [sillName, setSillName] = useState("");
   const [quality, setQuality] = useState("");
   const [showMoreFilters, setShowMoreFilters] = useState(false);
-  const [exactDate, setExactDate] = useState(""); // YYYY-MM-DD from input, converted to DD/MM/YYYY for API
 
   // Confirmation Modal
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -54,9 +52,6 @@ export const OrdersContent = () => {
     dateRange,
     customStartDate,
     customEndDate,
-    exactDate: exactDate
-      ? exactDate.split("-").reverse().join("/")  // YYYY-MM-DD → DD/MM/YYYY
-      : "",
     status,
     clotheType,
     finishingType,
@@ -115,34 +110,18 @@ export const OrdersContent = () => {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-[#1e293b]">Orders</h1>
-            <p className="text-sm text-gray-500 font-medium">Manage and track all your orders</p>
+            <p className="text-sm text-gray-500 font-medium">
+              Manage and track all your orders
+            </p>
           </div>
         </div>
-        <div className="flex items-center gap-3 flex-wrap">
-          {/* Date filter input */}
-          <div className="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 bg-white shadow-sm">
-            <label className="text-xs font-semibold text-gray-500 whitespace-nowrap">তারিখ:</label>
-            <input
-              type="date"
-              value={exactDate}
-              onChange={(e) => { setExactDate(e.target.value); setCurrentPage(1); }}
-              className="text-sm text-gray-700 outline-none bg-transparent cursor-pointer"
-            />
-            {exactDate && (
-              <button
-                onClick={() => setExactDate("")}
-                className="text-gray-400 hover:text-red-500 transition text-xs font-bold ml-1"
-                title="Clear date"
-              >✕</button>
-            )}
-          </div>
-          <Link
-            href={"/dashboard/createOrder"}
-            className="inline-flex items-center justify-center gap-2 bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-5 py-2.5 rounded-lg font-semibold transition shadow-sm shadow-blue-200 cursor-pointer"
-          >
-            <Plus size={18} /> New Order
-          </Link>
-        </div>
+
+        <Link
+          href={"/dashboard/createOrder"}
+          className="inline-flex items-center justify-center gap-2 bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-5 py-2.5 rounded-lg font-semibold transition shadow-sm shadow-blue-200 cursor-pointer"
+        >
+          <Plus size={18} /> New Order
+        </Link>
       </div>
 
       <OrderFilters
