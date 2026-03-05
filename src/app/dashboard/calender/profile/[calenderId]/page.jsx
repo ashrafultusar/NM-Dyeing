@@ -342,7 +342,7 @@ export default function CalenderProfileLedger({ params }) {
       {showCloseModal && <CloseModal onClose={() => setShowCloseModal(false)} onConfirm={handleClose} loading={closeLoading} />}
       {showInitialModal && <InitialAmountModal initCharge={initialCharge} initPayment={initialPayment} initDate={initialDate} onClose={() => setShowInitialModal(false)} onConfirm={handleSetInitialAmount} loading={initialLoading} />}
       <div className="mt-12 md:mt-8 lg:mt-1 max-w-6xl mx-auto p-3 sm:p-6 min-h-screen">
-        <button onClick={() => router.back()} className="flex items-center gap-2 bg-blue-100 px-2 py-1 rounded text-gray-600 hover:text-blue-600 font-bold text-sm mb-4 print:hidden"><FaArrowLeft size={14} /> BACK</button>
+        <button onClick={() => router.back()} className="flex cursor-pointer items-center gap-2 bg-blue-100 px-2 py-1 rounded text-gray-600 hover:text-blue-600 font-bold text-sm mb-4 print:hidden"><FaArrowLeft size={14} /> BACK</button>
         <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden print:border-none print:shadow-none">
           <div className="p-5 sm:p-8 border-b border-gray-100 bg-white">
             <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
@@ -355,19 +355,19 @@ export default function CalenderProfileLedger({ params }) {
               </div>
               <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto print:hidden">
                 <div className="relative">
-                  <button onClick={() => setDropdownOpen(p => !p)} className="flex items-center gap-2 border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-gray-50 transition w-full sm:w-auto whitespace-nowrap">
+                  <button onClick={() => setDropdownOpen(p => !p)} className="flex cursor-pointer items-center gap-2 border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-gray-50 transition w-full sm:w-auto whitespace-nowrap">
                     {selectedLabel} <FaChevronDown size={10} className={`transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
                   </button>
                   {dropdownOpen && (
                     <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-100 z-40 py-1 overflow-hidden">
-                      <button onClick={() => { setSelectedView("current"); setDropdownOpen(false); }} className={`w-full text-left px-4 py-2.5 text-xs font-bold hover:bg-blue-50 flex items-center gap-2 transition ${isCurrentView ? "text-blue-600 bg-blue-50" : "text-gray-700"}`}>
+                      <button onClick={() => { setSelectedView("current"); setDropdownOpen(false); }} className={`w-full cursor-pointer text-left px-4 py-2.5 text-xs font-bold hover:bg-blue-50 flex items-center gap-2 transition ${isCurrentView ? "text-blue-600 bg-blue-50" : "text-gray-700"}`}>
                         📂 Current Ledger {isCurrentView && <FaCheckCircle size={10} className="ml-auto text-blue-500" />}
                       </button>
                       {snapshots.length > 0 && (<>
                         <div className="border-t border-gray-100 my-1" />
                         <p className="px-4 py-1 text-[9px] text-gray-400 font-black uppercase tracking-widest">Closed Ledgers</p>
                         {snapshots.map(snap => (
-                          <button key={snap._id} onClick={() => { setSelectedView(snap._id); setDropdownOpen(false); }} className={`w-full text-left px-4 py-2.5 hover:bg-gray-50 transition flex items-start gap-2 ${selectedView === snap._id ? "bg-gray-50" : ""}`}>
+                          <button key={snap._id} onClick={() => { setSelectedView(snap._id); setDropdownOpen(false); }} className={`w-full cursor-pointer text-left px-4 py-2.5 hover:bg-gray-50 transition flex items-start gap-2 ${selectedView === snap._id ? "bg-gray-50" : ""}`}>
                             <FaLock size={9} className="text-gray-400 mt-0.5 shrink-0" />
                             <div><p className="text-xs font-bold text-gray-800">{snap.title}</p><p className="text-[10px] text-gray-400">{fmtDate(snap.closedAt)}</p></div>
                             {selectedView === snap._id && <FaCheckCircle size={10} className="ml-auto text-blue-500 mt-0.5 shrink-0" />}
