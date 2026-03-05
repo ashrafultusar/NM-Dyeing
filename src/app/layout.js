@@ -25,7 +25,7 @@ export const metadata = {
   authors: [{ name: "NM Team" }],
   creator: "NM",
   publisher: "NM Inc.",
-  viewport: "width=device-width, initial-scale=1",
+
   openGraph: {
     title: "NM - Garments Inventory Solution",
     description: "Streamline your garments business with our advanced inventory tracking system.",

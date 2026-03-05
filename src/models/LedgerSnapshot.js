@@ -4,6 +4,8 @@ const LedgerRowSchema = new mongoose.Schema(
   {
     date: Date,
     provider: String,
+    displayOrderId: String,
+    companyName: String,
     description: String,
     qty: Number,
     price: Number,

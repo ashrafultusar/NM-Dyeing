@@ -13,6 +13,8 @@ function buildLedger(billings, payments, openingBalance = 0, initialCharge = 0, 
   const combined = [
     ...billings.map((b) => ({
       date: b.createdAt, provider: "DYEING BILL",
+      displayOrderId: b.displayOrderId || "N/A",
+      companyName: b.companyName || "Unknown",
       description: `Invoice: ${b.invoiceNumber}`,
       qty: b.totalQty, price: b.price, charge: b.total, payment: 0, type: "debit", colour: b.colour,
     })),
@@ -133,14 +135,25 @@ function LedgerTable({ rows, openingBalance, initialCharge, initialPayment, init
     <div className="overflow-x-auto w-full">
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
-          <tr>{["Date", "Method", "Description", "Charge (+)", "Payment (-)", "Balance"].map((h, i) => (
-            <th key={h} className={`px-4 py-4 font-black text-gray-500 uppercase text-[10px] ${i >= 3 ? "text-right" : "text-left"}`}>{h}</th>
+          <tr>{[
+            "Date",
+            "Order ID",
+            "Company",
+            "Method",
+            "Description",
+            "Charge (+)",
+            "Payment (-)",
+            "Balance",
+          ].map((h, i) => (
+            <th key={h} className={`px-4 py-4 font-black text-gray-500 uppercase text-[10px] ${i >= 5 ? "text-right" : "text-left"}`}>{h}</th>
           ))}</tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-100">
           {openingBalance !== 0 && (
             <tr className="bg-blue-50/60">
               <td className="px-4 py-3 text-[11px] font-medium text-blue-600">—</td>
+              <td className="px-4 py-3 whitespace-nowrap text-[11px] font-bold">—</td>
+              <td className="px-4 py-3 text-[11px] font-semibold">—</td>
               <td className="px-4 py-3"><span className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase bg-blue-100 text-blue-700">CARRY FWD</span></td>
               <td className="px-4 py-3 text-xs font-bold text-blue-700">Opening Balance (Previous Period)</td>
               <td className="px-4 py-3 text-right text-[11px]">—</td>
@@ -155,6 +168,8 @@ function LedgerTable({ rows, openingBalance, initialCharge, initialPayment, init
           {hasInitial && (
             <tr className="bg-indigo-50/60">
               <td className="px-4 py-3 text-[11px] font-medium text-indigo-600">{initialDate ? fmtDate(initialDate) : "—"}</td>
+              <td className="px-4 py-3 whitespace-nowrap text-[11px] font-bold">—</td>
+              <td className="px-4 py-3 text-[11px] font-semibold">—</td>
               <td className="px-4 py-3">
                 <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase ${initialPayment > 0 && initialCharge === 0 ? "bg-green-100 text-green-700" : (initialCharge > 0 && initialPayment === 0 ? "bg-red-100 text-red-700" : "bg-indigo-100 text-indigo-700")}`}>INITIAL</span>
               </td>
@@ -171,6 +186,8 @@ function LedgerTable({ rows, openingBalance, initialCharge, initialPayment, init
           {rows.map((row, idx) => (
             <tr key={idx} className="hover:bg-blue-50/30 transition-colors">
               <td className="px-4 py-4 whitespace-nowrap text-gray-600 text-[11px] font-medium">{fmtDate(row.date)}</td>
+              <td className="px-4 py-4 whitespace-nowrap text-[11px] font-bold text-indigo-600">{row.displayOrderId || "—"}</td>
+              <td className="px-4 py-4 text-[11px] font-semibold text-gray-700 max-w-[150px] truncate">{row.companyName || "—"}</td>
               <td className="px-4 py-4 whitespace-nowrap"><span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase ${row.type === "credit" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"}`}>{row.provider}</span></td>
               <td className="px-4 py-4 text-gray-700 text-xs">
                 <div className="font-bold text-gray-900">{row.description}</div>
@@ -338,19 +355,19 @@ export default function DyeingProfileLedger({ params }) {
               </div>
               <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto print:hidden">
                 <div className="relative">
-                  <button onClick={() => setDropdownOpen(p => !p)} className="flex items-center gap-2 border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-gray-50 transition w-full sm:w-auto whitespace-nowrap">
+                  <button onClick={() => setDropdownOpen(p => !p)} className="flex cursor-pointer items-center gap-2 border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-gray-50 transition w-full sm:w-auto whitespace-nowrap">
                     {selectedLabel} <FaChevronDown size={10} className={`transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
                   </button>
                   {dropdownOpen && (
                     <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-100 z-40 py-1 overflow-hidden">
-                      <button onClick={() => { setSelectedView("current"); setDropdownOpen(false); }} className={`w-full text-left px-4 py-2.5 text-xs font-bold hover:bg-blue-50 flex items-center gap-2 transition ${isCurrentView ? "text-blue-600 bg-blue-50" : "text-gray-700"}`}>
+                      <button onClick={() => { setSelectedView("current"); setDropdownOpen(false); }} className={`w-full cursor-pointer text-left px-4 py-2.5 text-xs font-bold hover:bg-blue-50 flex items-center gap-2 transition ${isCurrentView ? "text-blue-600 bg-blue-50" : "text-gray-700"}`}>
                         📂 Current Ledger {isCurrentView && <FaCheckCircle size={10} className="ml-auto text-blue-500" />}
                       </button>
                       {snapshots.length > 0 && (<>
                         <div className="border-t border-gray-100 my-1" />
                         <p className="px-4 py-1 text-[9px] text-gray-400 font-black uppercase tracking-widest">Closed Ledgers</p>
                         {snapshots.map(snap => (
-                          <button key={snap._id} onClick={() => { setSelectedView(snap._id); setDropdownOpen(false); }} className={`w-full text-left px-4 py-2.5 hover:bg-gray-50 transition flex items-start gap-2 ${selectedView === snap._id ? "bg-gray-50" : ""}`}>
+                          <button key={snap._id} onClick={() => { setSelectedView(snap._id); setDropdownOpen(false); }} className={`w-full cursor-pointer text-left px-4 py-2.5 hover:bg-gray-50 transition flex items-start gap-2 ${selectedView === snap._id ? "bg-gray-50" : ""}`}>
                             <FaLock size={9} className="text-gray-400 mt-0.5 shrink-0" />
                             <div><p className="text-xs font-bold text-gray-800">{snap.title}</p><p className="text-[10px] text-gray-400">{fmtDate(snap.closedAt)}</p></div>
                             {selectedView === snap._id && <FaCheckCircle size={10} className="ml-auto text-blue-500 mt-0.5 shrink-0" />}
@@ -370,7 +387,7 @@ export default function DyeingProfileLedger({ params }) {
                     <FaLock size={10} /> Close Ledger
                   </button>
                 )}
-                <button onClick={() => window.print()} className="bg-blue-600 text-white px-6 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap">PRINT REPORT</button>
+                <button onClick={() => window.print()} className="cursor-pointer bg-blue-600 text-white px-6 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap">PRINT REPORT</button>
               </div>
             </div>
             {!isCurrentView && activeSnapshot && (
