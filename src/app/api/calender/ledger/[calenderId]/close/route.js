@@ -51,6 +51,8 @@ export async function POST(req, { params }) {
         const combined = [
             ...billings.map(b => ({
                 date: b.createdAt, provider: "CALENDER BILL",
+                displayOrderId: b.displayOrderId || "N/A",
+                companyName: b.companyName || "Unknown",
                 description: `Invoice: ${b.invoiceNumber}`,
                 qty: b.totalQty, price: b.price, charge: b.total, payment: 0, type: "debit", colour: b.colour,
             })),

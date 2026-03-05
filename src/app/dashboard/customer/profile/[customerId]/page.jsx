@@ -313,9 +313,8 @@ function LedgerTable({
             ].map((h, i) => (
               <th
                 key={h}
-                className={`px-4 py-4 font-black text-gray-500 uppercase text-[10px] ${
-                  i >= 3 ? "text-right" : "text-left"
-                }`}
+                className={`px-4 py-4 font-black text-gray-500 uppercase text-[10px] ${i >= 5 ? "text-right" : "text-left"
+                  }`}
               >
                 {h}
               </th>
@@ -329,6 +328,8 @@ function LedgerTable({
               <td className="px-4 py-3 whitespace-nowrap text-[11px] font-medium text-blue-600">
                 —
               </td>
+              <td className="px-4 py-3 whitespace-nowrap text-[11px] font-bold">—</td>
+              <td className="px-4 py-3 text-[11px] font-semibold">—</td>
               <td className="px-4 py-3 whitespace-nowrap">
                 <span className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase bg-blue-100 text-blue-700">
                   CARRY FWD
@@ -341,11 +342,10 @@ function LedgerTable({
               <td className="px-4 py-3 text-right text-[11px]">—</td>
               <td className="px-4 py-3 text-right">
                 <div
-                  className={`text-xs font-black px-2 py-1 rounded ${
-                    openingBalance < 0
+                  className={`text-xs font-black px-2 py-1 rounded ${openingBalance < 0
                       ? "text-red-600 bg-red-50"
                       : "text-teal-600 bg-teal-50"
-                  }`}
+                    }`}
                 >
                   {openingBalance < 0
                     ? `- ৳${Math.abs(openingBalance).toLocaleString()}`
@@ -360,15 +360,16 @@ function LedgerTable({
               <td className="px-4 py-3 whitespace-nowrap text-[11px] font-medium text-indigo-600">
                 {initialDate ? fmtDate(initialDate) : "—"}
               </td>
+              <td className="px-4 py-3 whitespace-nowrap text-[11px] font-bold">—</td>
+              <td className="px-4 py-3 text-[11px] font-semibold">—</td>
               <td className="px-4 py-3 whitespace-nowrap">
                 <span
-                  className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase ${
-                    initialPayment > 0 && initialCharge === 0
+                  className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase ${initialPayment > 0 && initialCharge === 0
                       ? "bg-green-100 text-green-700"
                       : initialCharge > 0 && initialPayment === 0
-                      ? "bg-red-100 text-red-700"
-                      : "bg-indigo-100 text-indigo-700"
-                  }`}
+                        ? "bg-red-100 text-red-700"
+                        : "bg-indigo-100 text-indigo-700"
+                    }`}
                 >
                   INITIAL
                 </span>
@@ -386,11 +387,10 @@ function LedgerTable({
               </td>
               <td className="px-4 py-3 text-right">
                 <div
-                  className={`text-xs font-black px-2 py-1 rounded ${
-                    effectiveOpening < 0
+                  className={`text-xs font-black px-2 py-1 rounded ${effectiveOpening < 0
                       ? "text-red-600 bg-red-50"
                       : "text-teal-600 bg-teal-50"
-                  }`}
+                    }`}
                 >
                   {effectiveOpening < 0
                     ? `- ৳${Math.abs(effectiveOpening).toLocaleString()}`
@@ -412,11 +412,10 @@ function LedgerTable({
               </td>
               <td className="px-4 py-4 whitespace-nowrap">
                 <span
-                  className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase ${
-                    row.type === "credit"
+                  className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase ${row.type === "credit"
                       ? "bg-green-100 text-green-700"
                       : "bg-gray-100 text-gray-600"
-                  }`}
+                    }`}
                 >
                   {row.provider}
                 </span>
@@ -443,11 +442,10 @@ function LedgerTable({
               </td>
               <td className="px-4 py-4 text-right whitespace-nowrap">
                 <div
-                  className={`text-xs font-black px-2 py-1 rounded ${
-                    row.balance < 0
+                  className={`text-xs font-black px-2 py-1 rounded ${row.balance < 0
                       ? "text-red-600 bg-red-50"
                       : "text-teal-600 bg-teal-50"
-                  }`}
+                    }`}
                 >
                   {row.balance < 0
                     ? `- ৳${Math.abs(row.balance).toLocaleString()}`
@@ -490,9 +488,8 @@ function SummaryFooter({
             Final Balance
           </p>
           <p
-            className={`text-2xl font-black ${
-              finalBalance < 0 ? "text-red-500" : "text-teal-400"
-            }`}
+            className={`text-2xl font-black ${finalBalance < 0 ? "text-red-500" : "text-teal-400"
+              }`}
           >
             {finalBalance < 0
               ? `- ৳${Math.abs(finalBalance).toLocaleString()}`
@@ -725,9 +722,8 @@ export default function CustomerProfileLedger({ params }) {
                     {selectedLabel}
                     <FaChevronDown
                       size={10}
-                      className={`transition-transform ${
-                        dropdownOpen ? "rotate-180" : ""
-                      }`}
+                      className={`transition-transform ${dropdownOpen ? "rotate-180" : ""
+                        }`}
                     />
                   </button>
                   {dropdownOpen && (
@@ -737,11 +733,10 @@ export default function CustomerProfileLedger({ params }) {
                           setSelectedView("current");
                           setDropdownOpen(false);
                         }}
-                        className={`w-full text-left cursor-pointer px-4 py-2.5 text-xs font-bold hover:bg-blue-50 flex items-center gap-2 transition ${
-                          isCurrentView
+                        className={`w-full text-left cursor-pointer px-4 py-2.5 text-xs font-bold hover:bg-blue-50 flex items-center gap-2 transition ${isCurrentView
                             ? "text-blue-600 bg-blue-50"
                             : "text-gray-700"
-                        }`}
+                          }`}
                       >
                         📂 Current Ledger{" "}
                         {isCurrentView && (
@@ -764,9 +759,8 @@ export default function CustomerProfileLedger({ params }) {
                                 setSelectedView(snap._id);
                                 setDropdownOpen(false);
                               }}
-                              className={`w-full text-left px-4 py-2.5 hover:bg-gray-50 transition cursor-pointer flex items-start gap-2 ${
-                                selectedView === snap._id ? "bg-gray-50" : ""
-                              }`}
+                              className={`w-full text-left px-4 py-2.5 hover:bg-gray-50 transition cursor-pointer flex items-start gap-2 ${selectedView === snap._id ? "bg-gray-50" : ""
+                                }`}
                             >
                               <FaLock
                                 size={9}

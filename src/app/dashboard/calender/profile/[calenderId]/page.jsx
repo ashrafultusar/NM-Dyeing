@@ -13,6 +13,8 @@ function buildLedger(billings, payments, openingBalance = 0, initialCharge = 0, 
   const combined = [
     ...billings.map((b) => ({
       date: b.createdAt, provider: "CALENDER BILL",
+      displayOrderId: b.displayOrderId || "N/A",
+      companyName: b.companyName || "Unknown",
       description: `Invoice: ${b.invoiceNumber}`,
       qty: b.totalQty, price: b.price, charge: b.total, payment: 0, type: "debit", colour: b.colour,
     })),
@@ -133,14 +135,25 @@ function LedgerTable({ rows, openingBalance, initialCharge, initialPayment, init
     <div className="overflow-x-auto w-full">
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
-          <tr>{["Date", "Method", "Description", "Charge (+)", "Payment (-)", "Balance"].map((h, i) => (
-            <th key={h} className={`px-4 py-4 font-black text-gray-500 uppercase text-[10px] ${i >= 3 ? "text-right" : "text-left"}`}>{h}</th>
+          <tr>{[
+            "Date",
+            "Order ID",
+            "Company",
+            "Method",
+            "Description",
+            "Charge (+)",
+            "Payment (-)",
+            "Balance",
+          ].map((h, i) => (
+            <th key={h} className={`px-4 py-4 font-black text-gray-500 uppercase text-[10px] ${i >= 5 ? "text-right" : "text-left"}`}>{h}</th>
           ))}</tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-100">
           {openingBalance !== 0 && (
             <tr className="bg-blue-50/60">
               <td className="px-4 py-3 text-[11px] font-medium text-blue-600">—</td>
+              <td className="px-4 py-3 whitespace-nowrap text-[11px] font-bold">—</td>
+              <td className="px-4 py-3 text-[11px] font-semibold">—</td>
               <td className="px-4 py-3"><span className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase bg-blue-100 text-blue-700">CARRY FWD</span></td>
               <td className="px-4 py-3 text-xs font-bold text-blue-700">Opening Balance (Previous Period)</td>
               <td className="px-4 py-3 text-right text-[11px]">—</td>
@@ -155,6 +168,8 @@ function LedgerTable({ rows, openingBalance, initialCharge, initialPayment, init
           {hasInitial && (
             <tr className="bg-indigo-50/60">
               <td className="px-4 py-3 text-[11px] font-medium text-indigo-600">{initialDate ? fmtDate(initialDate) : "—"}</td>
+              <td className="px-4 py-3 whitespace-nowrap text-[11px] font-bold">—</td>
+              <td className="px-4 py-3 text-[11px] font-semibold">—</td>
               <td className="px-4 py-3">
                 <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase ${initialPayment > 0 && initialCharge === 0 ? "bg-green-100 text-green-700" : (initialCharge > 0 && initialPayment === 0 ? "bg-red-100 text-red-700" : "bg-indigo-100 text-indigo-700")}`}>INITIAL</span>
               </td>
@@ -171,6 +186,8 @@ function LedgerTable({ rows, openingBalance, initialCharge, initialPayment, init
           {rows.map((row, idx) => (
             <tr key={idx} className="hover:bg-blue-50/30 transition-colors">
               <td className="px-4 py-4 whitespace-nowrap text-gray-600 text-[11px] font-medium">{fmtDate(row.date)}</td>
+              <td className="px-4 py-4 whitespace-nowrap text-[11px] font-bold text-indigo-600">{row.displayOrderId || "—"}</td>
+              <td className="px-4 py-4 text-[11px] font-semibold text-gray-700 max-w-[150px] truncate">{row.companyName || "—"}</td>
               <td className="px-4 py-4 whitespace-nowrap"><span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase ${row.type === "credit" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"}`}>{row.provider}</span></td>
               <td className="px-4 py-4 text-gray-700 text-xs">
                 <div className="font-bold text-gray-900">{row.description}</div>
