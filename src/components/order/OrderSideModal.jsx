@@ -38,12 +38,7 @@ const OrderSideModal = ({
   const handlePrint = () => {
     const printArea = printRef.current.cloneNode(true);
     const tempDiv = document.createElement("div");
-    tempDiv.style.position = "absolute";
-    tempDiv.style.top = "0";
-    tempDiv.style.left = "0";
-    tempDiv.style.width = "100%";
-    tempDiv.style.background = "white";
-    tempDiv.style.zIndex = "9999";
+    tempDiv.className = "print-only";
     tempDiv.appendChild(printArea);
     document.body.appendChild(tempDiv);
     window.print();
@@ -115,20 +110,30 @@ const OrderSideModal = ({
                         <div className="space-y-6 pt-2">
                           <div className="grid grid-cols-2 gap-4 text-gray-700">
                             <div>
-                              <p className="text-xs text-gray-500">Created at</p>
-                              <p className="font-semibold">{formatDate(selectedOrder?.createdAt)}</p>
+                              <p className="text-xs text-gray-500">
+                                Created at
+                              </p>
+                              <p className="font-semibold">
+                                {formatDate(selectedOrder?.createdAt)}
+                              </p>
                             </div>
                             <div>
                               <p className="text-xs text-gray-500">Due Date</p>
-                              <p className="font-semibold">{formatDate(selectedOrder?.dueDate)}</p>
+                              <p className="font-semibold">
+                                {formatDate(selectedOrder?.dueDate)}
+                              </p>
                             </div>
                             <div>
                               <p className="text-xs text-gray-500">Bundle</p>
-                              <p className="font-semibold">{selectedOrder?.bundle || "N/A"}</p>
+                              <p className="font-semibold">
+                                {selectedOrder?.bundle || "N/A"}
+                              </p>
                             </div>
                             <div>
                               <p className="text-xs text-gray-500">Quantity</p>
-                              <p className="font-semibold">{selectedOrder?.quality || "N/A"}</p>
+                              <p className="font-semibold">
+                                {selectedOrder?.quality || "N/A"}
+                              </p>
                             </div>
                           </div>
 
@@ -148,7 +153,11 @@ const OrderSideModal = ({
 
                           <div className="pt-4 border-t flex justify-between gap-4">
                             <button
-                              onClick={() => router.push(`/dashboard/order/update/${selectedOrder?._id}`)}
+                              onClick={() =>
+                                router.push(
+                                  `/dashboard/order/update/${selectedOrder?._id}`
+                                )
+                              }
                               className="flex-1 py-3 px-4 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition"
                             >
                               <FaPencilAlt className="inline-block mr-2" /> Edit
@@ -171,7 +180,7 @@ const OrderSideModal = ({
                     currentStatus={selectedOrder?.status || "Pending"}
                     tableData={selectedOrder?.tableData || []}
                     onStatusChange={(newStatus) => {
-                      if(selectedOrder) selectedOrder.status = newStatus;
+                      if (selectedOrder) selectedOrder.status = newStatus;
                     }}
                   />
                 </>
