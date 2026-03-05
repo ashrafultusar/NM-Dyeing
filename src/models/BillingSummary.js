@@ -3,10 +3,12 @@ import mongoose from "mongoose";
 const BillingSummarySchema = new mongoose.Schema(
   {
     orderId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Order",
-    required: true,
-  },
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Order",
+      required: true,
+    },
+    displayOrderId: { type: String },
+    companyName: { type: String, required: true },
     invoiceNumber: { type: String, required: true },
 
     summaryType: {
@@ -28,7 +30,7 @@ const BillingSummarySchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Customer",
     },
- 
+
     dyeing: String,
     dyeingId: {
       type: mongoose.Schema.Types.ObjectId,

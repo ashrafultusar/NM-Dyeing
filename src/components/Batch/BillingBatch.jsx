@@ -19,7 +19,6 @@ export default function BillingBatch({ orderId }) {
   const [priceByInvoice, setPriceByInvoice] = useState({});
   // shape: { [invoiceNumber]: { client: "", dyeing: "", calender: "" } }
 
-
   // Fetch invoices and order info
   const fetchBillingData = async () => {
     try {
@@ -166,21 +165,19 @@ export default function BillingBatch({ orderId }) {
 
   useEffect(() => {
     if (!invoices?.length) return;
-  
+
     invoices.forEach(async (inv) => {
       const res = await fetch(
         `/api/batch/billing/summary/${inv.invoiceNumber}`
       );
       const data = await res.json();
-  
-      setSavedRows(prev => ({
+
+      setSavedRows((prev) => ({
         ...prev,
-        [inv.invoiceNumber]: data
+        [inv.invoiceNumber]: data,
       }));
     });
   }, [invoices]);
-  
-
 
   // Billing logic (bidirectional)
   const handleBillingChange = (invoiceNumber, type, field, value, totalQty) => {
@@ -209,10 +206,13 @@ export default function BillingBatch({ orderId }) {
 
   const handleSaveSummary = async (inv, r, billing) => {
     try {
-      const batch = inv.batches[0]; // single batch ধরে নিচ্ছি
+      const batch = inv.batches[0];
       const { totalQty } = getInvoiceTotals(inv);
+
       const payload = {
         orderId: orderId,
+        displayOrderId: orderInfo?.orderId || "",
+        companyName: orderInfo?.companyName || "Unknown Company",
         invoiceNumber: inv.invoiceNumber,
         summaryType: r.key,
         price: Number(billing.price),
@@ -258,7 +258,7 @@ export default function BillingBatch({ orderId }) {
   if (loading) return <p>Loading billing invoices...</p>;
   if (!invoices.length)
     return <p className="text-gray-500">No invoice billing data found.</p>;
-  // console.log(invoices);
+
 
   return (
     <div className="mt-6 space-y-6">
