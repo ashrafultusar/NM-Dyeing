@@ -4,7 +4,7 @@ import Image from "next/image";
 import React from "react";
 import { IoLogoWhatsapp } from "react-icons/io";
 
-export default function OrderPrint({ order }) {
+export default function OrderInvoicePrint({ order }) {
   const tableRows = order?.tableData || [
     { _id: "1", rollNo: 1, goj: 10.5, extra: "1.2" },
     { _id: "2", rollNo: 2, goj: 11.2, extra: "0.8" },
