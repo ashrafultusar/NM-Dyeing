@@ -585,7 +585,6 @@ function LedgerTable({
               </td>
             </tr>
           )}
-          {/* Initial Amount row — always first, before all billings/payments */}
           {hasInitial && (
             <tr className="bg-indigo-50/60">
               {isCurrentView && <td className="px-4 py-3"></td>}
