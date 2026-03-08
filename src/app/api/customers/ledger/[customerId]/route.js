@@ -4,6 +4,7 @@ import BillingSummary from "@/models/BillingSummary";
 import Payment from "@/models/Payment";
 import customers from "@/models/customers";
 import LedgerSnapshot from "@/models/LedgerSnapshot";
+import SavedInvoice from "@/models/SavedInvoice";
 import mongoose from "mongoose";
 
 export async function GET(req, { params }) {
@@ -36,6 +37,12 @@ export async function GET(req, { params }) {
       return NextResponse.json({ success: false, message: "Customer not found" }, { status: 404 });
     }
 
+    const savedInvoices = await SavedInvoice.find({ entityId: objId, entityType: "customer" });
+    const savedRecordIds = [];
+    savedInvoices.forEach(inv => {
+      inv.records.forEach(rec => savedRecordIds.push(rec.recordId.toString()));
+    });
+
     return NextResponse.json({
       success: true,
       data: {
@@ -46,6 +53,7 @@ export async function GET(req, { params }) {
         initialCharge: customer.initialCharge ?? 0,
         initialPayment: customer.initialPayment ?? 0,
         initialDate: customer.initialDate ?? null,
+        savedRecordIds,
       },
     });
   } catch (error) {

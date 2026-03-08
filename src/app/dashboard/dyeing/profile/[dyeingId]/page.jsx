@@ -2,10 +2,206 @@
 
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState, use, useCallback } from "react";
-import { FaArrowLeft, FaChevronDown, FaLock, FaTimes, FaCheckCircle, FaEdit } from "react-icons/fa";
+import { FaArrowLeft, FaChevronDown, FaChevronUp, FaLock, FaTimes, FaCheckCircle, FaEdit, FaPrint } from "react-icons/fa";
 import { toast } from "react-toastify";
 
-function buildLedger(billings, payments, openingBalance = 0, initialCharge = 0, initialPayment = 0) {
+function DyeingSavedBillsTab({ dyeingId }) {
+  const [invoices, setInvoices] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [expandedId, setExpandedId] = useState(null);
+
+  useEffect(() => {
+    async function fetchInvoices() {
+      try {
+        const res = await fetch(`/api/dyeings/ledger/${dyeingId}/saved-invoices`);
+        const data = await res.json();
+        if (data.success) {
+          setInvoices(data.invoices);
+        } else {
+          toast.error("Failed to fetch saved invoices");
+        }
+      } catch {
+        toast.error("Server error");
+      } finally {
+        setLoading(false);
+      }
+    }
+    if (dyeingId) fetchInvoices();
+  }, [dyeingId]);
+
+  const handlePrint = (invoiceId) => {
+    setExpandedId(invoiceId);
+    setTimeout(() => {
+      window.print();
+    }, 300);
+  };
+
+  if (loading) {
+    return (
+      <div className="p-10 text-center font-bold text-gray-500 animate-pulse uppercase">
+        Loading Saved Invoices...
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {invoices.length === 0 ? (
+        <div className="text-center py-10 text-gray-400 font-bold">
+          No saved invoices found.
+        </div>
+      ) : (
+        invoices.map((inv) => {
+          const isExpanded = expandedId === inv._id;
+          return (
+            <div
+              key={inv._id}
+              className={`border rounded-xl overflow-hidden transition-all duration-300 print:border-none print:block ${isExpanded ? "border-indigo-300 ring-2 ring-indigo-50" : "border-gray-200"
+                } ${!isExpanded && "print:hidden"}`}
+            >
+              <div
+                className="bg-gray-50 px-5 py-4 cursor-pointer flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:bg-gray-100 transition print:hidden"
+                onClick={() => setExpandedId(isExpanded ? null : inv._id)}
+              >
+                <div>
+                  <h3 className="text-sm font-black text-gray-900">
+                    {inv.invoiceNumber} — {inv.title}
+                  </h3>
+                  <p className="text-xs text-gray-600 font-bold mt-1">
+                    Company: <span className="text-indigo-600">{inv.companyName}</span>{" "}
+                    {inv.orderIds?.length > 0 && `| Orders: ${inv.orderIds.join(", ")}`}
+                  </p>
+                  <p className="text-[10px] text-gray-400 mt-1 uppercase tracking-wider">
+                    Saved On: {fmtDate(inv.createdAt)}
+                  </p>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="text-right">
+                    <p className="text-[10px] text-gray-500 font-bold uppercase">Total Billed</p>
+                    <p className="text-sm font-black">৳{inv.totalCharge?.toLocaleString()}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[10px] text-gray-500 font-bold uppercase">Total Paid</p>
+                    <p className="text-sm font-black text-green-600">
+                      ৳{inv.totalPayment?.toLocaleString()}
+                    </p>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handlePrint(inv._id);
+                    }}
+                    className="bg-blue-100 text-blue-600 p-2 rounded-lg hover:bg-blue-200 transition"
+                    title="Print Invoice"
+                  >
+                    <FaPrint size={14} />
+                  </button>
+                  <div className="text-gray-400">
+                    {isExpanded ? <FaChevronUp /> : <FaChevronDown />}
+                  </div>
+                </div>
+              </div>
+
+              {/* Print Only Header */}
+              <div className="hidden print:block p-6 border-b border-gray-200">
+                <h2 className="text-2xl font-black mb-2">{inv.title || "Invoice"}</h2>
+                <p className="font-bold text-gray-800">Invoice No: {inv.invoiceNumber}</p>
+                <p className="font-bold text-gray-800">Company: {inv.companyName}</p>
+                <p className="text-sm text-gray-500">Date: {fmtDate(inv.createdAt)}</p>
+              </div>
+
+              {/* Expanded Content */}
+              <div
+                className={`${isExpanded ? "block" : "hidden"
+                  } print:block bg-white transition-all`}
+              >
+                <div className="overflow-x-auto w-full border-t border-gray-200">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        {[
+                          "Date",
+                          "Order ID",
+                          "Company",
+                          "Method",
+                          "Description",
+                          "Charge (+)",
+                          "Payment (-)",
+                        ].map((h, i) => (
+                          <th
+                            key={h}
+                            className={`px-4 py-3 font-black text-gray-500 uppercase text-[10px] ${i >= 5 ? "text-right" : "text-left"
+                              }`}
+                          >
+                            {h}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-100">
+                      {inv.records.map((row, idx) => (
+                        <tr key={idx} className="hover:bg-blue-50/10">
+                          <td className="px-4 py-3 whitespace-nowrap text-gray-600 text-[11px] font-medium">
+                            {fmtDate(row.date)}
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap text-[11px] font-bold text-indigo-600">
+                            {row.displayOrderId || "—"}
+                          </td>
+                          <td className="px-4 py-3 text-[11px] font-semibold text-gray-700 max-w-[150px] truncate">
+                            {row.companyName || "—"}
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <span
+                              className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase ${row.type === "credit"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-gray-100 text-gray-600"
+                                }`}
+                            >
+                              {row.provider}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-gray-700 text-xs">
+                            <div className="font-bold text-gray-900">{row.description}</div>
+                            {row.colour && (
+                              <span className="text-[10px] text-gray-400 italic leading-none">
+                                {row.colour}
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 text-right whitespace-nowrap">
+                            {row.charge > 0 ? (
+                              <div className="text-gray-900 font-bold text-[11px]">
+                                ({row.qty} × {row.price}) = ৳{row.charge.toLocaleString()}
+                              </div>
+                            ) : (
+                              "—"
+                            )}
+                          </td>
+                          <td className="px-4 py-3 text-right text-green-600 font-black text-xs whitespace-nowrap">
+                            {row.payment > 0 ? `৳${row.payment.toLocaleString()}` : "—"}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    <tfoot className="bg-gray-50">
+                      <tr>
+                        <td colSpan="5" className="px-4 py-3 text-right text-xs font-black uppercase text-gray-500">Totals</td>
+                        <td className="px-4 py-3 text-right font-black text-gray-900 text-sm">৳{inv.totalCharge?.toLocaleString()}</td>
+                        <td className="px-4 py-3 text-right font-black text-green-600 text-sm">৳{inv.totalPayment?.toLocaleString()}</td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </div>
+            </div>
+          );
+        })
+      )}
+    </div>
+  );
+}
+
+function buildLedger(billings, payments, openingBalance = 0, initialCharge = 0, initialPayment = 0, savedRecordIds = []) {
   let startBal = openingBalance;
   if (initialCharge > 0 || initialPayment > 0) {
     startBal += initialPayment - initialCharge;
@@ -17,13 +213,13 @@ function buildLedger(billings, payments, openingBalance = 0, initialCharge = 0, 
       companyName: b.companyName || "Unknown",
       description: `Invoice: ${b.invoiceNumber}`,
       qty: b.totalQty, price: b.price, charge: b.total, payment: 0, type: "debit", colour: b.colour,
-      recordId: b._id, modelType: "BillingSummary", isSaved: b.isSavedInLedger,
+      recordId: b._id, modelType: "BillingSummary", isSaved: savedRecordIds.includes(b._id.toString()),
     })),
     ...payments.map((p) => ({
       date: p.date, provider: p.method.toUpperCase(),
       description: p.description || "Payment Received",
       charge: 0, payment: p.amount, type: "credit",
-      recordId: p._id, modelType: "Payment", isSaved: p.isSavedInLedger,
+      recordId: p._id, modelType: "Payment", isSaved: savedRecordIds.includes(p._id.toString()),
     })),
   ];
   combined.sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -296,17 +492,18 @@ export default function DyeingProfileLedger({ params }) {
   const [pageLoading, setPageLoading] = useState(true);
   const [selectedRows, setSelectedRows] = useState([]);
   const [isSavingSelected, setIsSavingSelected] = useState(false);
+  const [activeTab, setActiveTab] = useState("ledger");
 
   const fetchCurrentLedger = useCallback(async () => {
     try {
       const res = await fetch(`/api/dyeings/ledger/${dyeingId}`);
       const result = await res.json();
       if (result.success) {
-        const { dyeing: d, billings, payments, openingBalance: ob = 0, initialCharge: ic = 0, initialPayment: ip = 0, initialDate: id = null } = result.data;
+        const { dyeing: d, billings, payments, openingBalance: ob = 0, initialCharge: ic = 0, initialPayment: ip = 0, initialDate: id = null, savedRecordIds = [] } = result.data;
         setDyeing(d); setOpeningBalance(ob);
         setInitialCharge(ic); setInitialPayment(ip);
         setInitialDate(id);
-        setCurrentLedger(buildLedger(billings, payments, ob, ic, ip));
+        setCurrentLedger(buildLedger(billings, payments, ob, ic, ip, savedRecordIds));
       }
     } catch { toast.error("Failed to load ledger"); }
   }, [dyeingId]);
@@ -410,58 +607,80 @@ export default function DyeingProfileLedger({ params }) {
       <div className="mt-12 md:mt-8 lg:mt-1 max-w-6xl mx-auto p-3 sm:p-6 min-h-screen">
         <button onClick={() => router.back()} className="cursor-pointer flex items-center gap-2 bg-blue-100 px-2 py-1 rounded text-gray-600 hover:text-blue-600 font-bold text-sm mb-4 print:hidden"><FaArrowLeft size={14} /> BACK</button>
         <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden print:border-none print:shadow-none">
+          <div className="border-b border-gray-100 bg-gray-50 flex print:hidden">
+            <button
+              onClick={() => setActiveTab("ledger")}
+              className={`cursor-pointer flex-1 py-4 text-sm font-black uppercase tracking-wider transition-colors ${activeTab === "ledger"
+                ? "text-indigo-600 border-b-2 border-indigo-600 bg-white"
+                : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                }`}
+            >
+              Ledger Statement
+            </button>
+            <button
+              onClick={() => setActiveTab("saved-bills")}
+              className={`cursor-pointer flex-1 py-4 text-sm font-black uppercase tracking-wider transition-colors ${activeTab === "saved-bills"
+                ? "text-purple-600 border-b-2 border-purple-600 bg-white"
+                : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                }`}
+            >
+              Saved Invoices
+            </button>
+          </div>
+
           <div className="p-5 sm:p-8 border-b border-gray-100 bg-white">
             <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
               <div>
-                <h1 className="text-xl sm:text-2xl font-black text-gray-900 uppercase">Dyeing Ledger Statement</h1>
+                <h1 className="text-xl sm:text-2xl font-black text-gray-900 uppercase">{activeTab === "ledger" ? "Dyeing Ledger Statement" : "Saved Bills / Invoices"}</h1>
                 <div className="mt-4 space-y-1">
                   <p className="font-bold text-blue-600 text-lg">{dyeing?.name}</p>
                   <p className="text-xs text-gray-500 uppercase font-bold">Location: {dyeing?.location}</p>
                 </div>
               </div>
               <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto print:hidden flex-wrap">
-                {isCurrentView && selectedRows.length > 0 && (
+                {activeTab === "ledger" && isCurrentView && selectedRows.length > 0 && (
                   <button onClick={handleSaveSelected} disabled={isSavingSelected} className="flex cursor-pointer items-center gap-2 bg-indigo-600 text-white border border-indigo-700 rounded-xl px-4 py-2.5 text-xs font-bold hover:bg-indigo-700 transition w-full sm:w-auto whitespace-nowrap disabled:opacity-50 shadow-sm">
                     {isSavingSelected ? "Saving..." : `Save Selected (${selectedRows.length})`}
                   </button>
                 )}
-                <div className="relative">
-                  <button onClick={() => setDropdownOpen(p => !p)} className="flex cursor-pointer items-center gap-2 border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-gray-50 transition w-full sm:w-auto whitespace-nowrap">
-                    {selectedLabel} <FaChevronDown size={10} className={`transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
-                  </button>
-                  {dropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-100 z-40 py-1 overflow-hidden">
-                      <button onClick={() => { setSelectedView("current"); setDropdownOpen(false); }} className={`w-full cursor-pointer text-left px-4 py-2.5 text-xs font-bold hover:bg-blue-50 flex items-center gap-2 transition ${isCurrentView ? "text-blue-600 bg-blue-50" : "text-gray-700"}`}>
-                        📂 Current Ledger {isCurrentView && <FaCheckCircle size={10} className="ml-auto text-blue-500" />}
-                      </button>
-                      {snapshots.length > 0 && (<>
-                        <div className="border-t border-gray-100 my-1" />
-                        <p className="px-4 py-1 text-[9px] text-gray-400 font-black uppercase tracking-widest">Closed Ledgers</p>
-                        {snapshots.map(snap => (
-                          <button key={snap._id} onClick={() => { setSelectedView(snap._id); setDropdownOpen(false); }} className={`w-full cursor-pointer text-left px-4 py-2.5 hover:bg-gray-50 transition flex items-start gap-2 ${selectedView === snap._id ? "bg-gray-50" : ""}`}>
-                            <FaLock size={9} className="text-gray-400 mt-0.5 shrink-0" />
-                            <div><p className="text-xs font-bold text-gray-800">{snap.title}</p><p className="text-[10px] text-gray-400">{fmtDate(snap.closedAt)}</p></div>
-                            {selectedView === snap._id && <FaCheckCircle size={10} className="ml-auto text-blue-500 mt-0.5 shrink-0" />}
-                          </button>
-                        ))}
-                      </>)}
-                    </div>
-                  )}
-                </div>
-                <button onClick={() => router.push(`/dashboard/dyeing/profile/${dyeingId}/saved-bills`)} className="flex cursor-pointer items-center gap-2 bg-purple-50 text-purple-600 border border-purple-200 rounded-xl px-4 py-2.5 text-xs font-bold hover:bg-purple-100 transition whitespace-nowrap">
-                  📄 Saved Invoices
-                </button>
-                {isCurrentView && (
+                {activeTab === "ledger" && (
+                  <div className="relative">
+                    <button onClick={() => setDropdownOpen(p => !p)} className="flex cursor-pointer items-center gap-2 border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-gray-50 transition w-full sm:w-auto whitespace-nowrap">
+                      {selectedLabel} <FaChevronDown size={10} className={`transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
+                    </button>
+                    {dropdownOpen && (
+                      <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-100 z-40 py-1 overflow-hidden">
+                        <button onClick={() => { setSelectedView("current"); setDropdownOpen(false); }} className={`w-full cursor-pointer text-left px-4 py-2.5 text-xs font-bold hover:bg-blue-50 flex items-center gap-2 transition ${isCurrentView ? "text-blue-600 bg-blue-50" : "text-gray-700"}`}>
+                          📂 Current Ledger {isCurrentView && <FaCheckCircle size={10} className="ml-auto text-blue-500" />}
+                        </button>
+                        {snapshots.length > 0 && (<>
+                          <div className="border-t border-gray-100 my-1" />
+                          <p className="px-4 py-1 text-[9px] text-gray-400 font-black uppercase tracking-widest">Closed Ledgers</p>
+                          {snapshots.map(snap => (
+                            <button key={snap._id} onClick={() => { setSelectedView(snap._id); setDropdownOpen(false); }} className={`w-full cursor-pointer text-left px-4 py-2.5 hover:bg-gray-50 transition flex items-start gap-2 ${selectedView === snap._id ? "bg-gray-50" : ""}`}>
+                              <FaLock size={9} className="text-gray-400 mt-0.5 shrink-0" />
+                              <div><p className="text-xs font-bold text-gray-800">{snap.title}</p><p className="text-[10px] text-gray-400">{fmtDate(snap.closedAt)}</p></div>
+                              {selectedView === snap._id && <FaCheckCircle size={10} className="ml-auto text-blue-500 mt-0.5 shrink-0" />}
+                            </button>
+                          ))}
+                        </>)}
+                      </div>
+                    )}
+                  </div>
+                )}
+                {activeTab === "ledger" && isCurrentView && (
                   <button onClick={() => setShowInitialModal(true)} className="flex cursor-pointer items-center gap-2 bg-indigo-500 text-white px-4 py-2.5 rounded-xl text-xs font-black hover:bg-indigo-600 transition whitespace-nowrap">
                     <FaEdit size={10} /> {(initialCharge > 0 || initialPayment > 0) ? "Edit Initial" : "Set Initial"}
                   </button>
                 )}
-                {isCurrentView && currentLedger.length > 0 && (
+                {activeTab === "ledger" && isCurrentView && currentLedger.length > 0 && (
                   <button onClick={() => setShowCloseModal(true)} className="flex items-center gap-2 bg-red-500 text-white px-4 py-2.5 rounded-xl text-xs font-black hover:bg-red-600 transition whitespace-nowrap">
                     <FaLock size={10} /> Close Ledger
                   </button>
                 )}
-                <button onClick={() => window.print()} className="cursor-pointer bg-blue-600 text-white px-6 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap">PRINT REPORT</button>
+                {activeTab === "ledger" && (
+                  <button onClick={() => window.print()} className="cursor-pointer bg-blue-600 text-white px-6 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap">PRINT REPORT</button>
+                )}
               </div>
             </div>
             {!isCurrentView && activeSnapshot && (
@@ -470,21 +689,31 @@ export default function DyeingProfileLedger({ params }) {
               </div>
             )}
           </div>
-          {!isCurrentView && !activeSnapshot
-            ? <div className="py-20 text-center animate-pulse"><p className="text-gray-400 font-bold text-sm">Loading snapshot...</p></div>
-            : <LedgerTable rows={displayRows} openingBalance={displayOpeningBalance}
-              initialCharge={isCurrentView ? initialCharge : (activeSnapshot?.initialCharge ?? 0)}
-              initialPayment={isCurrentView ? initialPayment : (activeSnapshot?.initialPayment ?? 0)}
-              initialDate={isCurrentView ? initialDate : (activeSnapshot?.initialDate ?? null)}
-              isCurrentView={isCurrentView} selectedRows={selectedRows} setSelectedRows={setSelectedRows} />
-          }
-          <SummaryFooter totalCharge={totalCharge} totalPayment={totalPayment} finalBalance={finalBalance} />
+
+          {activeTab === "ledger" ? (
+            <>
+              {!isCurrentView && !activeSnapshot
+                ? <div className="py-20 text-center animate-pulse"><p className="text-gray-400 font-bold text-sm">Loading snapshot...</p></div>
+                : <LedgerTable rows={displayRows} openingBalance={displayOpeningBalance}
+                  initialCharge={isCurrentView ? initialCharge : (activeSnapshot?.initialCharge ?? 0)}
+                  initialPayment={isCurrentView ? initialPayment : (activeSnapshot?.initialPayment ?? 0)}
+                  initialDate={isCurrentView ? initialDate : (activeSnapshot?.initialDate ?? null)}
+                  isCurrentView={isCurrentView} selectedRows={selectedRows} setSelectedRows={setSelectedRows} />
+              }
+              <SummaryFooter totalCharge={totalCharge} totalPayment={totalPayment} finalBalance={finalBalance} />
+            </>
+          ) : (
+            <div className="p-5 sm:p-8">
+              <DyeingSavedBillsTab dyeingId={dyeingId} />
+            </div>
+          )}
+
           <div className="p-6 sm:p-8 flex flex-col sm:flex-row justify-between items-center gap-8 bg-white">
             <div className="text-[10px] text-gray-400 font-medium order-2 sm:order-1 uppercase">OFFICIAL STATEMENT • {new Date().toLocaleString()}</div>
             <div className="text-center order-1 sm:order-2"><div className="w-40 h-px bg-gray-200 mb-2"></div><p className="text-[10px] font-black text-gray-500 uppercase tracking-tighter">Authorized Signature</p></div>
           </div>
         </div>
-      </div>
+      </div >
     </>
   );
 }

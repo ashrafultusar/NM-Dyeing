@@ -4,6 +4,7 @@ import BillingSummary from "@/models/BillingSummary";
 import Payment from "@/models/Payment";
 import Dyeing from "@/models/Dyeing";
 import LedgerSnapshot from "@/models/LedgerSnapshot";
+import SavedInvoice from "@/models/SavedInvoice";
 import mongoose from "mongoose";
 
 export async function GET(req, { params }) {
@@ -36,6 +37,12 @@ export async function GET(req, { params }) {
       return NextResponse.json({ success: false, message: "Dyeing not found" }, { status: 404 });
     }
 
+    const savedInvoices = await SavedInvoice.find({ entityId: objId, entityType: "dyeing" });
+    const savedRecordIds = [];
+    savedInvoices.forEach(inv => {
+      inv.records.forEach(rec => savedRecordIds.push(rec.recordId.toString()));
+    });
+
     return NextResponse.json({
       success: true,
       data: {
@@ -46,6 +53,7 @@ export async function GET(req, { params }) {
         initialCharge: dyeing.initialCharge ?? 0,
         initialPayment: dyeing.initialPayment ?? 0,
         initialDate: dyeing.initialDate ?? null,
+        savedRecordIds,
       },
     });
   } catch (error) {
