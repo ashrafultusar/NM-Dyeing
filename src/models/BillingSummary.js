@@ -42,6 +42,11 @@ const BillingSummarySchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Calender",
     },
+
+    isSavedInLedger: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

@@ -17,11 +17,13 @@ function buildLedger(billings, payments, openingBalance = 0, initialCharge = 0, 
       companyName: b.companyName || "Unknown",
       description: `Invoice: ${b.invoiceNumber}`,
       qty: b.totalQty, price: b.price, charge: b.total, payment: 0, type: "debit", colour: b.colour,
+      recordId: b._id, modelType: "BillingSummary", isSaved: b.isSavedInLedger,
     })),
     ...payments.map((p) => ({
       date: p.date, provider: p.method.toUpperCase(),
       description: p.description || "Payment Received",
       charge: 0, payment: p.amount, type: "credit",
+      recordId: p._id, modelType: "Payment", isSaved: p.isSavedInLedger,
     })),
   ];
   combined.sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -124,7 +126,7 @@ function CloseModal({ onClose, onConfirm, loading }) {
   );
 }
 
-function LedgerTable({ rows, openingBalance, initialCharge, initialPayment, initialDate }) {
+function LedgerTable({ rows, openingBalance, initialCharge, initialPayment, initialDate, isCurrentView, selectedRows, setSelectedRows }) {
   const hasInitial = initialCharge > 0 || initialPayment > 0;
   const initialBalance = (initialPayment || 0) - (initialCharge || 0);
   const effectiveOpening = openingBalance + initialBalance;
@@ -135,22 +137,41 @@ function LedgerTable({ rows, openingBalance, initialCharge, initialPayment, init
     <div className="overflow-x-auto w-full">
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
-          <tr>{[
-            "Date",
-            "Order ID",
-            "Company",
-            "Method",
-            "Description",
-            "Charge (+)",
-            "Payment (-)",
-            "Balance",
-          ].map((h, i) => (
-            <th key={h} className={`px-4 py-4 font-black text-gray-500 uppercase text-[10px] ${i >= 5 ? "text-right" : "text-left"}`}>{h}</th>
-          ))}</tr>
+          <tr>
+            {isCurrentView && (
+              <th className="px-4 py-4 w-10">
+                <input
+                  type="checkbox"
+                  className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                  checked={rows.length > 0 && selectedRows.length === rows.filter(r => !r.isSaved).length && rows.filter(r => !r.isSaved).length > 0}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setSelectedRows(rows.filter(r => !r.isSaved));
+                    } else {
+                      setSelectedRows([]);
+                    }
+                  }}
+                />
+              </th>
+            )}
+            {[
+              "Date",
+              "Order ID",
+              "Company",
+              "Method",
+              "Description",
+              "Charge (+)",
+              "Payment (-)",
+              "Balance",
+            ].map((h, i) => (
+              <th key={h} className={`px-4 py-4 font-black text-gray-500 uppercase text-[10px] ${i >= 5 ? "text-right" : "text-left"}`}>{h}</th>
+            ))}
+          </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-100">
           {openingBalance !== 0 && (
             <tr className="bg-blue-50/60">
+              {isCurrentView && <td className="px-4 py-3"></td>}
               <td className="px-4 py-3 text-[11px] font-medium text-blue-600">—</td>
               <td className="px-4 py-3 whitespace-nowrap text-[11px] font-bold">—</td>
               <td className="px-4 py-3 text-[11px] font-semibold">—</td>
@@ -167,6 +188,7 @@ function LedgerTable({ rows, openingBalance, initialCharge, initialPayment, init
           )}
           {hasInitial && (
             <tr className="bg-indigo-50/60">
+              {isCurrentView && <td className="px-4 py-3"></td>}
               <td className="px-4 py-3 text-[11px] font-medium text-indigo-600">{initialDate ? fmtDate(initialDate) : "—"}</td>
               <td className="px-4 py-3 whitespace-nowrap text-[11px] font-bold">—</td>
               <td className="px-4 py-3 text-[11px] font-semibold">—</td>
@@ -183,27 +205,45 @@ function LedgerTable({ rows, openingBalance, initialCharge, initialPayment, init
               </td>
             </tr>
           )}
-          {rows.map((row, idx) => (
-            <tr key={idx} className="hover:bg-blue-50/30 transition-colors">
-              <td className="px-4 py-4 whitespace-nowrap text-gray-600 text-[11px] font-medium">{fmtDate(row.date)}</td>
-              <td className="px-4 py-4 whitespace-nowrap text-[11px] font-bold text-indigo-600">{row.displayOrderId || "—"}</td>
-              <td className="px-4 py-4 text-[11px] font-semibold text-gray-700 max-w-[150px] truncate">{row.companyName || "—"}</td>
-              <td className="px-4 py-4 whitespace-nowrap"><span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase ${row.type === "credit" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"}`}>{row.provider}</span></td>
-              <td className="px-4 py-4 text-gray-700 text-xs">
-                <div className="font-bold text-gray-900">{row.description}</div>
-                {row.colour && <span className="text-[10px] text-gray-400 italic">{row.colour}</span>}
-              </td>
-              <td className="px-4 py-4 text-right whitespace-nowrap">
-                {row.charge > 0 ? <div className="text-gray-900 font-bold text-[11px]">({row.qty} × {row.price}) = ৳{row.charge.toLocaleString()}</div> : "—"}
-              </td>
-              <td className="px-4 py-4 text-right text-green-600 font-black text-xs whitespace-nowrap">{row.payment > 0 ? `৳${row.payment.toLocaleString()}` : "—"}</td>
-              <td className="px-4 py-4 text-right whitespace-nowrap">
-                <div className={`text-xs font-black px-2 py-1 rounded ${row.balance < 0 ? "text-red-600 bg-red-50" : "text-teal-600 bg-teal-50"}`}>
-                  {row.balance < 0 ? `- ৳${Math.abs(row.balance).toLocaleString()}` : `+ ৳${row.balance.toLocaleString()}`}
-                </div>
-              </td>
-            </tr>
-          ))}
+          {rows.map((row, idx) => {
+            const isSelected = selectedRows.some(r => r.recordId === row.recordId && r.modelType === row.modelType);
+            return (
+              <tr key={idx} className={`transition-colors ${isSelected ? "bg-indigo-50/50" : "hover:bg-blue-50/30"} ${row.isSaved ? "opacity-60" : ""}`}>
+                {isCurrentView && (
+                  <td className="px-4 py-4 whitespace-nowrap">
+                    <input
+                      type="checkbox"
+                      disabled={row.isSaved}
+                      checked={row.isSaved || isSelected}
+                      onChange={(e) => {
+                        if (e.target.checked) setSelectedRows([...selectedRows, row]);
+                        else setSelectedRows(selectedRows.filter(r => !(r.recordId === row.recordId && r.modelType === row.modelType)));
+                      }}
+                      className={`rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 ${row.isSaved ? "cursor-not-allowed grayscale" : "cursor-pointer"}`}
+                    />
+                    {row.isSaved && <span className="ml-2 px-1.5 py-0.5 rounded text-[8px] font-black uppercase bg-gray-200 text-gray-500">Saved</span>}
+                  </td>
+                )}
+                <td className="px-4 py-4 whitespace-nowrap text-gray-600 text-[11px] font-medium">{fmtDate(row.date)}</td>
+                <td className="px-4 py-4 whitespace-nowrap text-[11px] font-bold text-indigo-600">{row.displayOrderId || "—"}</td>
+                <td className="px-4 py-4 text-[11px] font-semibold text-gray-700 max-w-[150px] truncate">{row.companyName || "—"}</td>
+                <td className="px-4 py-4 whitespace-nowrap"><span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase ${row.type === "credit" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"}`}>{row.provider}</span></td>
+                <td className="px-4 py-4 text-gray-700 text-xs">
+                  <div className="font-bold text-gray-900">{row.description}</div>
+                  {row.colour && <span className="text-[10px] text-gray-400 italic">{row.colour}</span>}
+                </td>
+                <td className="px-4 py-4 text-right whitespace-nowrap">
+                  {row.charge > 0 ? <div className="text-gray-900 font-bold text-[11px]">({row.qty} × {row.price}) = ৳{row.charge.toLocaleString()}</div> : "—"}
+                </td>
+                <td className="px-4 py-4 text-right text-green-600 font-black text-xs whitespace-nowrap">{row.payment > 0 ? `৳${row.payment.toLocaleString()}` : "—"}</td>
+                <td className="px-4 py-4 text-right whitespace-nowrap">
+                  <div className={`text-xs font-black px-2 py-1 rounded ${row.balance < 0 ? "text-red-600 bg-red-50" : "text-teal-600 bg-teal-50"}`}>
+                    {row.balance < 0 ? `- ৳${Math.abs(row.balance).toLocaleString()}` : `+ ৳${row.balance.toLocaleString()}`}
+                  </div>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
@@ -254,6 +294,8 @@ export default function DyeingProfileLedger({ params }) {
   const [snapshots, setSnapshots] = useState([]);
   const [snapshotCache, setSnapshotCache] = useState({});
   const [pageLoading, setPageLoading] = useState(true);
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [isSavingSelected, setIsSavingSelected] = useState(false);
 
   const fetchCurrentLedger = useCallback(async () => {
     try {
@@ -292,6 +334,30 @@ export default function DyeingProfileLedger({ params }) {
   }, [dyeingId, snapshotCache]);
 
   useEffect(() => { if (selectedView !== "current") loadSnapshot(selectedView); }, [selectedView, loadSnapshot]);
+
+  const handleSaveSelected = async () => {
+    if (!selectedRows.length) return;
+    const title = prompt("Saved Invoice-এর জন্য একটি Title দিন (ঐচ্ছিক):", "New Invoice");
+    if (title === null) return;
+
+    setIsSavingSelected(true);
+    const totalCharge = selectedRows.reduce((a, b) => a + (b.charge || 0), 0);
+    const totalPayment = selectedRows.reduce((a, b) => a + (b.payment || 0), 0);
+
+    try {
+      const res = await fetch(`/api/dyeings/ledger/${dyeingId}/saved-invoices`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, records: selectedRows, totalCharge, totalPayment }),
+      });
+      const result = await res.json();
+      if (result.success) {
+        toast.success("Invoice সফলভাবে সেভ হয়েছে!");
+        setSelectedRows([]);
+        await fetchCurrentLedger();
+      } else { toast.error(result.message || "Failed to save selected bills"); }
+    } catch { toast.error("Server Error"); }
+    finally { setIsSavingSelected(false); }
+  };
 
   const handleClose = async (title) => {
     setCloseLoading(true);
@@ -353,7 +419,12 @@ export default function DyeingProfileLedger({ params }) {
                   <p className="text-xs text-gray-500 uppercase font-bold">Location: {dyeing?.location}</p>
                 </div>
               </div>
-              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto print:hidden">
+              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto print:hidden flex-wrap">
+                {isCurrentView && selectedRows.length > 0 && (
+                  <button onClick={handleSaveSelected} disabled={isSavingSelected} className="flex cursor-pointer items-center gap-2 bg-indigo-600 text-white border border-indigo-700 rounded-xl px-4 py-2.5 text-xs font-bold hover:bg-indigo-700 transition w-full sm:w-auto whitespace-nowrap disabled:opacity-50 shadow-sm">
+                    {isSavingSelected ? "Saving..." : `Save Selected (${selectedRows.length})`}
+                  </button>
+                )}
                 <div className="relative">
                   <button onClick={() => setDropdownOpen(p => !p)} className="flex cursor-pointer items-center gap-2 border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-gray-50 transition w-full sm:w-auto whitespace-nowrap">
                     {selectedLabel} <FaChevronDown size={10} className={`transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
@@ -377,6 +448,9 @@ export default function DyeingProfileLedger({ params }) {
                     </div>
                   )}
                 </div>
+                <button onClick={() => router.push(`/dashboard/dyeing/profile/${dyeingId}/saved-bills`)} className="flex cursor-pointer items-center gap-2 bg-purple-50 text-purple-600 border border-purple-200 rounded-xl px-4 py-2.5 text-xs font-bold hover:bg-purple-100 transition whitespace-nowrap">
+                  📄 Saved Invoices
+                </button>
                 {isCurrentView && (
                   <button onClick={() => setShowInitialModal(true)} className="flex cursor-pointer items-center gap-2 bg-indigo-500 text-white px-4 py-2.5 rounded-xl text-xs font-black hover:bg-indigo-600 transition whitespace-nowrap">
                     <FaEdit size={10} /> {(initialCharge > 0 || initialPayment > 0) ? "Edit Initial" : "Set Initial"}
@@ -401,7 +475,8 @@ export default function DyeingProfileLedger({ params }) {
             : <LedgerTable rows={displayRows} openingBalance={displayOpeningBalance}
               initialCharge={isCurrentView ? initialCharge : (activeSnapshot?.initialCharge ?? 0)}
               initialPayment={isCurrentView ? initialPayment : (activeSnapshot?.initialPayment ?? 0)}
-              initialDate={isCurrentView ? initialDate : (activeSnapshot?.initialDate ?? null)} />
+              initialDate={isCurrentView ? initialDate : (activeSnapshot?.initialDate ?? null)}
+              isCurrentView={isCurrentView} selectedRows={selectedRows} setSelectedRows={setSelectedRows} />
           }
           <SummaryFooter totalCharge={totalCharge} totalPayment={totalPayment} finalBalance={finalBalance} />
           <div className="p-6 sm:p-8 flex flex-col sm:flex-row justify-between items-center gap-8 bg-white">
