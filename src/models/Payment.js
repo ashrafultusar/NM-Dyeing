@@ -29,6 +29,10 @@ const paymentSchema = new mongoose.Schema(
     },
     description: { type: String, trim: true },
     date: { type: Date, default: Date.now },
+    isSavedInLedger: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

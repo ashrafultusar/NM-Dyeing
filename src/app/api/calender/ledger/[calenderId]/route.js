@@ -4,6 +4,7 @@ import BillingSummary from "@/models/BillingSummary";
 import Payment from "@/models/Payment";
 import Calender from "@/models/Calender";
 import LedgerSnapshot from "@/models/LedgerSnapshot";
+import SavedInvoice from "@/models/SavedInvoice";
 import mongoose from "mongoose";
 
 export async function GET(req, { params }) {
@@ -36,6 +37,12 @@ export async function GET(req, { params }) {
       return NextResponse.json({ success: false, message: "Calender not found" }, { status: 404 });
     }
 
+    const savedInvoices = await SavedInvoice.find({ entityId: objId, entityType: "calender" });
+    const savedRecordIds = [];
+    savedInvoices.forEach(inv => {
+      inv.records.forEach(rec => savedRecordIds.push(rec.recordId.toString()));
+    });
+
     return NextResponse.json({
       success: true,
       data: {
@@ -46,6 +53,7 @@ export async function GET(req, { params }) {
         initialCharge: calender.initialCharge ?? 0,
         initialPayment: calender.initialPayment ?? 0,
         initialDate: calender.initialDate ?? null,
+        savedRecordIds,
       },
     });
   } catch (error) {
