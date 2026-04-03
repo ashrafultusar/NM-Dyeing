@@ -96,7 +96,7 @@ export default function CustomerProfileLedger({ params }) {
     async (snapshotId) => {
       if (snapshotCache[snapshotId]) return;
       try {
-        `/api/customers/ledger/${customerId}/snapshots/${snapshotId}?_t=${Date.now()}`
+        const res = await fetch(`/api/customers/ledger/${customerId}/snapshots/${snapshotId}?_t=${Date.now()}`);
         const result = await res.json();
         if (result.success)
           setSnapshotCache((prev) => ({
