@@ -40,7 +40,7 @@ export async function GET(req, { params }) {
     const savedInvoices = await SavedInvoice.find({ entityId: objId, entityType: "calender" });
     const savedRecordIds = [];
     savedInvoices.forEach(inv => {
-      inv.records.forEach(rec => savedRecordIds.push(rec.recordId.toString()));
+      inv.records.forEach(rec => { if (rec.recordId) savedRecordIds.push(rec.recordId.toString()); });
     });
 
     return NextResponse.json({

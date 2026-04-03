@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import SavedInvoice from "@/models/SavedInvoice";
+import LedgerSnapshot from "@/models/LedgerSnapshot";
 import BillingSummary from "@/models/BillingSummary";
 import Payment from "@/models/Payment";
 import customers from "@/models/customers";
@@ -67,9 +68,27 @@ export async function GET(req, { params }) {
         }
 
         const objId = new mongoose.Types.ObjectId(customerId);
+        const { searchParams } = new URL(req.url);
+        const view = searchParams.get("view") || "current";
 
-        const invoices = await SavedInvoice.find({ entityId: objId, entityType: "customer" })
-            .sort({ createdAt: -1 });
+        let filter = { entityId: objId, entityType: "customer" };
+
+        if (view === "current") {
+            const latestSnapshot = await LedgerSnapshot.findOne(
+                { entityId: objId, entityType: "customer" },
+                { closedAt: 1 }
+            ).sort({ closedAt: -1 });
+
+            const fromDate = latestSnapshot ? latestSnapshot.closedAt : new Date(0);
+            filter.createdAt = { $gt: fromDate };
+        } else if (mongoose.Types.ObjectId.isValid(view)) {
+            const snapshot = await LedgerSnapshot.findById(view);
+            if (snapshot) {
+                filter.createdAt = { $gt: snapshot.fromDate, $lte: snapshot.closedAt };
+            }
+        }
+
+        const invoices = await SavedInvoice.find(filter).sort({ createdAt: -1 });
 
         return NextResponse.json({ success: true, invoices });
     } catch (error) {
