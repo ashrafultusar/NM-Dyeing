@@ -502,7 +502,7 @@ export default function CustomerProfileLedger({ params }) {
                     onClick={() => window.print()}
                     className="cursor-pointer bg-blue-600 text-white px-6 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap"
                   >
-                    PRINT REPORT
+                    PRINT
                   </button>
                 )}
               </div>
