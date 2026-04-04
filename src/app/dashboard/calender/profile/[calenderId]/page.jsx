@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState, use, useCallback, useMemo } from "react";
+import React, { useEffect, useState, use, useCallback, useMemo, useRef } from "react";
 import { FaArrowLeft, FaChevronDown, FaChevronUp, FaLock, FaTimes, FaCheckCircle, FaEdit, FaPrint } from "react-icons/fa";
 import { toast } from "react-toastify";
 
@@ -12,6 +12,7 @@ import CloseModal from "@/components/calender/CloseModal";
 import LedgerTable from "@/components/calender/LedgerTable";
 import SummaryFooter from "@/components/calender/SummaryFooter";
 import { buildLedger, fmtDate } from "@/components/calender/ledgerUtils";
+import LedgerPrint from "@/components/Print/ledger/LedgerPrint";
 
 export default function CalenderProfileLedger({ params }) {
   const resolvedParams = use(params);
@@ -25,6 +26,7 @@ export default function CalenderProfileLedger({ params }) {
   const [showInitialModal, setShowInitialModal] = useState(false);
   const [initialLoading, setInitialLoading] = useState(false);
   const [showSaveModal, setShowSaveModal] = useState(false);
+  const printRef = useRef(null);
   const [calender, setCalender] = useState(null);
   const [currentLedger, setCurrentLedger] = useState([]);
   const [openingBalance, setOpeningBalance] = useState(0);
@@ -197,6 +199,19 @@ export default function CalenderProfileLedger({ params }) {
     finally { setInitialLoading(false); }
   };
 
+  const handlePrint = () => {
+    if (!printRef.current) return;
+    const printArea = printRef.current.cloneNode(true);
+    const tempDiv = document.createElement("div");
+    tempDiv.className = "print-only";
+    tempDiv.appendChild(printArea);
+    document.body.appendChild(tempDiv);
+    window.print();
+    setTimeout(() => {
+      document.body.removeChild(tempDiv);
+    }, 500);
+  };
+
   const isCurrentView = selectedView === "current";
   const activeSnapshot = isCurrentView ? null : snapshotCache[selectedView];
   const displayRows = isCurrentView ? currentLedger : (activeSnapshot?.ledgerData ?? []);
@@ -290,7 +305,7 @@ export default function CalenderProfileLedger({ params }) {
                   </button>
                 )}
                 {activeTab === "ledger" && (
-                  <button onClick={() => window.print()} className="cursor-pointer bg-blue-600 text-white px-6 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap">PRINT REPORT</button>
+                  <button onClick={handlePrint} className="cursor-pointer bg-blue-600 text-white px-6 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap">PRINT REPORT</button>
                 )}
               </div>
             </div>
@@ -330,6 +345,23 @@ export default function CalenderProfileLedger({ params }) {
           <div className="p-6 sm:p-8 flex flex-col sm:flex-row justify-between items-center gap-8 bg-white">
             <div className="text-[10px] text-gray-400 font-medium order-2 sm:order-1 uppercase">OFFICIAL STATEMENT • {new Date().toLocaleString()}</div>
             <div className="text-center order-1 sm:order-2"><div className="w-40 h-px bg-gray-200 mb-2"></div><p className="text-[10px] font-black text-gray-500 uppercase tracking-tighter">Authorized Signature</p></div>
+          </div>
+          <div style={{ display: "none" }}>
+            <div ref={printRef}>
+              <LedgerPrint
+                customer={{ companyName: calender?.name, address: calender?.location }}
+                rows={displayRows}
+                openingBalance={displayOpeningBalance}
+                initialCharge={currentInitialCharge}
+                initialPayment={currentInitialPayment}
+                initialDate={currentInitialCharge > 0 || currentInitialPayment > 0 ? (isCurrentView ? initialDate : activeSnapshot?.initialDate) : null}
+                totalCharge={totalCharge}
+                totalPayment={totalPayment}
+                finalBalance={finalBalance}
+                selectedLabel={selectedLabel}
+                role="Calender Company"
+              />
+            </div>
           </div>
         </div>
       </div>

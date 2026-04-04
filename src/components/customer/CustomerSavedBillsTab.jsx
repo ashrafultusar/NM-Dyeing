@@ -1,8 +1,9 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { FaChevronDown, FaChevronUp, FaPrint, FaTrash, FaPlus, FaTimes } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { fmtDate } from "./ledgerUtils";
+import SavedInvoicePrint from "@/components/Print/ledger/SavedInvoicePrint";
 
 function CustomerSavedBillsTab({ customerId, selectedView, availableRows, onInvoiceUpdated }) {
     const [invoices, setInvoices] = useState([]);
@@ -12,6 +13,9 @@ function CustomerSavedBillsTab({ customerId, selectedView, availableRows, onInvo
     const [appendingInvoiceId, setAppendingInvoiceId] = useState(null);
     const [appendSelectedRows, setAppendSelectedRows] = useState([]);
     const [actionLoading, setActionLoading] = useState(false);
+
+    const [printingInvoice, setPrintingInvoice] = useState(null);
+    const printRef = useRef(null);
 
     useEffect(() => {
         if (customerId) fetchInvoices();
@@ -34,11 +38,21 @@ function CustomerSavedBillsTab({ customerId, selectedView, availableRows, onInvo
         }
     }
 
-    const handlePrint = (invoiceId) => {
-        setExpandedId(invoiceId);
+    const handlePrint = (invoice) => {
+        setPrintingInvoice(invoice);
         setTimeout(() => {
+            if (!printRef.current) return;
+            const printArea = printRef.current.cloneNode(true);
+            const tempDiv = document.createElement("div");
+            tempDiv.className = "print-only";
+            tempDiv.appendChild(printArea);
+            document.body.appendChild(tempDiv);
             window.print();
-        }, 300);
+            setTimeout(() => {
+                document.body.removeChild(tempDiv);
+                setPrintingInvoice(null);
+            }, 500);
+        }, 100);
     };
 
     const handleRemoveRecord = async (invoiceId, record) => {
@@ -155,9 +169,9 @@ function CustomerSavedBillsTab({ customerId, selectedView, availableRows, onInvo
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            handlePrint(inv._id);
+                                            handlePrint(inv);
                                         }}
-                                        className="bg-blue-100 text-blue-600 p-2 rounded-lg hover:bg-blue-200 transition"
+                                        className="bg-blue-100 text-blue-600 p-2 rounded-lg hover:bg-blue-200 transition print:hidden"
                                         title="Print Invoice"
                                     >
                                         <FaPrint size={14} />
@@ -374,6 +388,12 @@ function CustomerSavedBillsTab({ customerId, selectedView, availableRows, onInvo
                     </div>
                 </div>
             )}
+
+            <div style={{ display: "none" }}>
+                <div ref={printRef}>
+                    <SavedInvoicePrint invoice={printingInvoice} />
+                </div>
+            </div>
         </div>
     );
 }
