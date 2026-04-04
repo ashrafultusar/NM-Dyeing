@@ -127,16 +127,61 @@ export default function CustomerProfileLedger({ params }) {
 
     let payloadRecords = [...selectedRows];
 
-    if (saveMode === "ledger" && finalBalance < 0) {
-      payloadRecords.push({
-        date: new Date().toISOString(),
-        description: "Previous Due / Ledger Balance",
-        charge: Math.abs(finalBalance),
-        payment: 0,
-        provider: "SYSTEM",
-        type: "debit",
-        companyName: customer?.companyName || "—",
-      });
+    if (saveMode === "ledger") {
+      try {
+        const invRes = await fetch(`/api/customers/ledger/${customerId}/saved-invoices?view=${selectedView}&_t=${Date.now()}`);
+        const invData = await invRes.json();
+        const savedInvoices = invData.success ? invData.invoices : [];
+
+        let bal = 0;
+        let foundBalance = false;
+
+        if (savedInvoices.length > 0) {
+          const sortedInvoices = savedInvoices.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+          const lastInvoice = sortedInvoices[0];
+
+          if (lastInvoice.records && lastInvoice.records.length > 0) {
+            const recordWithBalance = [...lastInvoice.records].reverse().find(r => typeof r.balance === 'number');
+            if (recordWithBalance) {
+              bal = recordWithBalance.balance;
+              foundBalance = true;
+            }
+          }
+        }
+
+        if (!foundBalance) {
+          if (initialCharge > 0) {
+            bal = -initialCharge; // Ledgers use negative for dues
+          } else if (initialPayment > 0) {
+            bal = initialPayment; // Positive for payments
+          }
+        }
+
+        let prevDueAmt = 0;
+        let isCharge = true;
+
+        if (bal < 0) {
+          prevDueAmt = Math.abs(bal);
+          isCharge = true;
+        } else if (bal > 0) {
+          prevDueAmt = bal;
+          isCharge = false;
+        }
+
+        if (prevDueAmt > 0) {
+          payloadRecords.unshift({
+            date: new Date().toISOString(),
+            description: isCharge ? "Previous Due" : "Previous Ledger Balance (Payment)",
+            charge: isCharge ? prevDueAmt : 0,
+            payment: isCharge ? 0 : prevDueAmt,
+            provider: "SYSTEM",
+            type: isCharge ? "debit" : "credit",
+            companyName: customer?.companyName || "—"
+          });
+        }
+      } catch (error) {
+        console.error("Failed to fetch previous due:", error);
+      }
     }
 
     setIsSavingSelected(true);
@@ -236,13 +281,15 @@ export default function CustomerProfileLedger({ params }) {
   const displayOpeningBalance = isCurrentView
     ? openingBalance
     : activeSnapshot?.openingBalance ?? 0;
+  const currentInitialCharge = isCurrentView ? initialCharge : (activeSnapshot?.initialCharge ?? 0);
+  const currentInitialPayment = isCurrentView ? initialPayment : (activeSnapshot?.initialPayment ?? 0);
   const totalCharge = useMemo(
-    () => displayRows.reduce((s, r) => s + (r.charge || 0), 0),
-    [displayRows]
+    () => currentInitialCharge + displayRows.reduce((s, r) => s + (r.charge || 0), 0),
+    [displayRows, currentInitialCharge]
   );
   const totalPayment = useMemo(
-    () => displayRows.reduce((s, r) => s + (r.payment || 0), 0),
-    [displayRows]
+    () => currentInitialPayment + displayRows.reduce((s, r) => s + (r.payment || 0), 0),
+    [displayRows, currentInitialPayment]
   );
   const finalBalance = useMemo(
     () => displayOpeningBalance + totalPayment - totalCharge,
@@ -295,21 +342,19 @@ export default function CustomerProfileLedger({ params }) {
           <div className="border-b border-gray-100 bg-gray-50 flex print:hidden">
             <button
               onClick={() => setActiveTab("ledger")}
-              className={`cursor-pointer flex-1 py-4 text-sm font-black uppercase tracking-wider transition-colors ${
-                activeTab === "ledger"
-                  ? "text-indigo-600 border-b-2 border-indigo-600 bg-white"
-                  : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
-              }`}
+              className={`cursor-pointer flex-1 py-4 text-sm font-black uppercase tracking-wider transition-colors ${activeTab === "ledger"
+                ? "text-indigo-600 border-b-2 border-indigo-600 bg-white"
+                : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                }`}
             >
               Ledger Statement
             </button>
             <button
               onClick={() => setActiveTab("saved-bills")}
-              className={`flex-1 cursor-pointer py-4 text-sm font-black uppercase tracking-wider transition-colors ${
-                activeTab === "saved-bills"
-                  ? "text-purple-600 border-b-2 border-purple-600 bg-white"
-                  : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
-              }`}
+              className={`flex-1 cursor-pointer py-4 text-sm font-black uppercase tracking-wider transition-colors ${activeTab === "saved-bills"
+                ? "text-purple-600 border-b-2 border-purple-600 bg-white"
+                : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                }`}
             >
               Saved Invoices
             </button>
@@ -359,9 +404,8 @@ export default function CustomerProfileLedger({ params }) {
                       {selectedLabel}
                       <FaChevronDown
                         size={10}
-                        className={`transition-transform ${
-                          dropdownOpen ? "rotate-180" : ""
-                        }`}
+                        className={`transition-transform ${dropdownOpen ? "rotate-180" : ""
+                          }`}
                       />
                     </button>
                     {dropdownOpen && (
@@ -371,11 +415,10 @@ export default function CustomerProfileLedger({ params }) {
                             setSelectedView("current");
                             setDropdownOpen(false);
                           }}
-                          className={`w-full text-left cursor-pointer px-4 py-2.5 text-xs font-bold hover:bg-blue-50 flex items-center gap-2 transition ${
-                            isCurrentView
-                              ? "text-blue-600 bg-blue-50"
-                              : "text-gray-700"
-                          }`}
+                          className={`w-full text-left cursor-pointer px-4 py-2.5 text-xs font-bold hover:bg-blue-50 flex items-center gap-2 transition ${isCurrentView
+                            ? "text-blue-600 bg-blue-50"
+                            : "text-gray-700"
+                            }`}
                         >
                           📂 Current Ledger{" "}
                           {isCurrentView && (
@@ -398,9 +441,8 @@ export default function CustomerProfileLedger({ params }) {
                                   setSelectedView(snap._id);
                                   setDropdownOpen(false);
                                 }}
-                                className={`w-full text-left px-4 py-2.5 hover:bg-gray-50 transition cursor-pointer flex items-start gap-2 ${
-                                  selectedView === snap._id ? "bg-gray-50" : ""
-                                }`}
+                                className={`w-full text-left px-4 py-2.5 hover:bg-gray-50 transition cursor-pointer flex items-start gap-2 ${selectedView === snap._id ? "bg-gray-50" : ""
+                                  }`}
                               >
                                 <FaLock
                                   size={9}
