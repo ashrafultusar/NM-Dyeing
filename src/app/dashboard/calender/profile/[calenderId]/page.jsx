@@ -81,16 +81,61 @@ export default function CalenderProfileLedger({ params }) {
 
     let payloadRecords = [...selectedRows];
 
-    if (saveMode === "ledger" && finalBalance < 0) {
-      payloadRecords.push({
-        date: new Date().toISOString(),
-        description: "Previous Due ",
-        charge: Math.abs(finalBalance),
-        payment: 0,
-        provider: "SYSTEM",
-        type: "debit",
-        companyName: calender?.name || "—"
-      });
+    if (saveMode === "ledger") {
+      try {
+        const invRes = await fetch(`/api/calender/ledger/${calenderId}/saved-invoices?view=${selectedView}&_t=${Date.now()}`);
+        const invData = await invRes.json();
+        const savedInvoices = invData.success ? invData.invoices : [];
+
+        let bal = 0;
+        let foundBalance = false;
+
+        if (savedInvoices.length > 0) {
+          const sortedInvoices = savedInvoices.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+          const lastInvoice = sortedInvoices[0];
+
+          if (lastInvoice.records && lastInvoice.records.length > 0) {
+            const recordWithBalance = [...lastInvoice.records].reverse().find(r => typeof r.balance === 'number');
+            if (recordWithBalance) {
+              bal = recordWithBalance.balance;
+              foundBalance = true;
+            }
+          }
+        }
+
+        if (!foundBalance) {
+          if (initialCharge > 0) {
+            bal = -initialCharge;
+          } else if (initialPayment > 0) {
+            bal = initialPayment;
+          }
+        }
+
+        let prevDueAmt = 0;
+        let isCharge = true;
+
+        if (bal < 0) {
+          prevDueAmt = Math.abs(bal);
+          isCharge = true;
+        } else if (bal > 0) {
+          prevDueAmt = bal;
+          isCharge = false;
+        }
+
+        if (prevDueAmt > 0) {
+          payloadRecords.unshift({
+            date: new Date().toISOString(),
+            description: isCharge ? "Previous Due" : "Previous Ledger Balance (Payment)",
+            charge: isCharge ? prevDueAmt : 0,
+            payment: isCharge ? 0 : prevDueAmt,
+            provider: "SYSTEM",
+            type: isCharge ? "debit" : "credit",
+            companyName: calender?.name || "—"
+          });
+        }
+      } catch (error) {
+        console.error("Failed to fetch previous due:", error);
+      }
     }
 
     setIsSavingSelected(true);
@@ -150,8 +195,10 @@ export default function CalenderProfileLedger({ params }) {
   const activeSnapshot = isCurrentView ? null : snapshotCache[selectedView];
   const displayRows = isCurrentView ? currentLedger : (activeSnapshot?.ledgerData ?? []);
   const displayOpeningBalance = isCurrentView ? openingBalance : (activeSnapshot?.openingBalance ?? 0);
-  const totalCharge = useMemo(() => displayRows.reduce((s, r) => s + (r.charge || 0), 0), [displayRows]);
-  const totalPayment = useMemo(() => displayRows.reduce((s, r) => s + (r.payment || 0), 0), [displayRows]);
+  const currentInitialCharge = isCurrentView ? initialCharge : (activeSnapshot?.initialCharge ?? 0);
+  const currentInitialPayment = isCurrentView ? initialPayment : (activeSnapshot?.initialPayment ?? 0);
+  const totalCharge = useMemo(() => currentInitialCharge + displayRows.reduce((s, r) => s + (r.charge || 0), 0), [displayRows, currentInitialCharge]);
+  const totalPayment = useMemo(() => currentInitialPayment + displayRows.reduce((s, r) => s + (r.payment || 0), 0), [displayRows, currentInitialPayment]);
   const finalBalance = useMemo(() => displayOpeningBalance + totalPayment - totalCharge, [displayOpeningBalance, totalPayment, totalCharge]);
   const selectedLabel = isCurrentView ? "📂 Current Ledger" : (snapshots.find(s => s._id === selectedView)?.title ?? "Closed Ledger");
 
