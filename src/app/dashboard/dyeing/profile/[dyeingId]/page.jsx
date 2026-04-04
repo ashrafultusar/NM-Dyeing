@@ -81,16 +81,61 @@ export default function DyeingProfileLedger({ params }) {
 
     let payloadRecords = [...selectedRows];
 
-    if (saveMode === "ledger" && finalBalance < 0) {
-      payloadRecords.push({
-        date: new Date().toISOString(),
-        description: "Previous Due / Ledger Balance",
-        charge: Math.abs(finalBalance),
-        payment: 0,
-        provider: "SYSTEM",
-        type: "debit",
-        companyName: dyeing?.name || "—"
-      });
+    if (saveMode === "ledger") {
+      try {
+        const invRes = await fetch(`/api/dyeings/ledger/${dyeingId}/saved-invoices?view=${selectedView}&_t=${Date.now()}`);
+        const invData = await invRes.json();
+        const savedInvoices = invData.success ? invData.invoices : [];
+
+        let bal = 0;
+        let foundBalance = false;
+
+        if (savedInvoices.length > 0) {
+          const sortedInvoices = savedInvoices.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+          const lastInvoice = sortedInvoices[0];
+
+          if (lastInvoice.records && lastInvoice.records.length > 0) {
+            const recordWithBalance = [...lastInvoice.records].reverse().find(r => typeof r.balance === 'number');
+            if (recordWithBalance) {
+              bal = recordWithBalance.balance;
+              foundBalance = true;
+            }
+          }
+        }
+
+        if (!foundBalance) {
+          if (initialCharge > 0) {
+            bal = -initialCharge;
+          } else if (initialPayment > 0) {
+            bal = initialPayment;
+          }
+        }
+
+        let prevDueAmt = 0;
+        let isCharge = true;
+
+        if (bal < 0) {
+          prevDueAmt = Math.abs(bal);
+          isCharge = true;
+        } else if (bal > 0) {
+          prevDueAmt = bal;
+          isCharge = false;
+        }
+
+        if (prevDueAmt > 0) {
+          payloadRecords.unshift({
+            date: new Date().toISOString(),
+            description: isCharge ? "Previous Due" : "Previous Ledger Balance (Payment)",
+            charge: isCharge ? prevDueAmt : 0,
+            payment: isCharge ? 0 : prevDueAmt,
+            provider: "SYSTEM",
+            type: isCharge ? "debit" : "credit",
+            companyName: dyeing?.name || "—"
+          });
+        }
+      } catch (error) {
+        console.error("Failed to fetch previous due:", error);
+      }
     }
 
     setIsSavingSelected(true);
