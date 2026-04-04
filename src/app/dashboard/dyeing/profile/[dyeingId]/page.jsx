@@ -150,8 +150,10 @@ export default function DyeingProfileLedger({ params }) {
   const activeSnapshot = isCurrentView ? null : snapshotCache[selectedView];
   const displayRows = isCurrentView ? currentLedger : (activeSnapshot?.ledgerData ?? []);
   const displayOpeningBalance = isCurrentView ? openingBalance : (activeSnapshot?.openingBalance ?? 0);
-  const totalCharge = useMemo(() => displayRows.reduce((s, r) => s + (r.charge || 0), 0), [displayRows]);
-  const totalPayment = useMemo(() => displayRows.reduce((s, r) => s + (r.payment || 0), 0), [displayRows]);
+  const currentInitialCharge = isCurrentView ? initialCharge : (activeSnapshot?.initialCharge ?? 0);
+  const currentInitialPayment = isCurrentView ? initialPayment : (activeSnapshot?.initialPayment ?? 0);
+  const totalCharge = useMemo(() => currentInitialCharge + displayRows.reduce((s, r) => s + (r.charge || 0), 0), [displayRows, currentInitialCharge]);
+  const totalPayment = useMemo(() => currentInitialPayment + displayRows.reduce((s, r) => s + (r.payment || 0), 0), [displayRows, currentInitialPayment]);
   const finalBalance = useMemo(() => displayOpeningBalance + totalPayment - totalCharge, [displayOpeningBalance, totalPayment, totalCharge]);
   const selectedLabel = isCurrentView ? "📂 Current Ledger" : (snapshots.find(s => s._id === selectedView)?.title ?? "Closed Ledger");
 

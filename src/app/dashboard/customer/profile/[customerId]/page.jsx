@@ -236,13 +236,15 @@ export default function CustomerProfileLedger({ params }) {
   const displayOpeningBalance = isCurrentView
     ? openingBalance
     : activeSnapshot?.openingBalance ?? 0;
+  const currentInitialCharge = isCurrentView ? initialCharge : (activeSnapshot?.initialCharge ?? 0);
+  const currentInitialPayment = isCurrentView ? initialPayment : (activeSnapshot?.initialPayment ?? 0);
   const totalCharge = useMemo(
-    () => displayRows.reduce((s, r) => s + (r.charge || 0), 0),
-    [displayRows]
+    () => currentInitialCharge + displayRows.reduce((s, r) => s + (r.charge || 0), 0),
+    [displayRows, currentInitialCharge]
   );
   const totalPayment = useMemo(
-    () => displayRows.reduce((s, r) => s + (r.payment || 0), 0),
-    [displayRows]
+    () => currentInitialPayment + displayRows.reduce((s, r) => s + (r.payment || 0), 0),
+    [displayRows, currentInitialPayment]
   );
   const finalBalance = useMemo(
     () => displayOpeningBalance + totalPayment - totalCharge,
