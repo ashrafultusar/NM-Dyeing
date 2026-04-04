@@ -141,7 +141,7 @@ export default function CustomerProfileLedger({ params }) {
           const lastInvoice = sortedInvoices[0];
 
           if (lastInvoice.records && lastInvoice.records.length > 0) {
-            const recordWithBalance = [...lastInvoice.records].reverse().find(r => typeof r.balance === 'number');
+            const recordWithBalance = [...lastInvoice.records].reverse().find(r => r.balance !== undefined && r.balance !== null);
             if (recordWithBalance) {
               bal = recordWithBalance.balance;
               foundBalance = true;
@@ -149,35 +149,41 @@ export default function CustomerProfileLedger({ params }) {
           }
         }
 
-        if (!foundBalance) {
-          if (initialCharge > 0) {
-            bal = -initialCharge; // Ledgers use negative for dues
-          } else if (initialPayment > 0) {
-            bal = initialPayment; // Positive for payments
+        if (foundBalance) {
+          let prevDueAmt = 0;
+          let isCharge = true;
+
+          if (bal < 0) {
+            prevDueAmt = Math.abs(bal);
+            isCharge = true;
+          } else if (bal > 0) {
+            prevDueAmt = bal;
+            isCharge = false;
           }
-        }
 
-        let prevDueAmt = 0;
-        let isCharge = true;
-
-        if (bal < 0) {
-          prevDueAmt = Math.abs(bal);
-          isCharge = true;
-        } else if (bal > 0) {
-          prevDueAmt = bal;
-          isCharge = false;
-        }
-
-        if (prevDueAmt > 0) {
-          payloadRecords.unshift({
-            date: new Date().toISOString(),
-            description: isCharge ? "Previous Due" : "Previous Ledger Balance (Payment)",
-            charge: isCharge ? prevDueAmt : 0,
-            payment: isCharge ? 0 : prevDueAmt,
-            provider: "SYSTEM",
-            type: isCharge ? "debit" : "credit",
-            companyName: customer?.companyName || "—"
-          });
+          if (prevDueAmt > 0) {
+            payloadRecords.unshift({
+              date: new Date().toISOString(),
+              description: isCharge ? "Previous Due" : "Previous Ledger Balance (Payment)",
+              charge: isCharge ? prevDueAmt : 0,
+              payment: isCharge ? 0 : prevDueAmt,
+              provider: "SYSTEM",
+              type: isCharge ? "debit" : "credit",
+              companyName: customer?.companyName || "—"
+            });
+          }
+        } else {
+          if (initialCharge > 0 || initialPayment > 0) {
+            payloadRecords.unshift({
+              date: new Date().toISOString(),
+              description: (initialPayment > 0 && initialCharge === 0) ? "Previous Ledger Balance (Payment)" : "Previous Ledger Balance / Due",
+              charge: initialCharge > 0 ? initialCharge : 0,
+              payment: initialPayment > 0 ? initialPayment : 0,
+              provider: "SYSTEM",
+              type: initialCharge > 0 ? "debit" : "credit",
+              companyName: customer?.companyName || "—"
+            });
+          }
         }
       } catch (error) {
         console.error("Failed to fetch previous due:", error);
