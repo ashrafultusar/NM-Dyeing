@@ -28,14 +28,14 @@ export default function Page() {
   useEffect(() => {
     const fetchEntities = async () => {
       try {
-        let endpoint = "/api/customers"; // default
+        let endpoint = "/api/customers"; 
         if (type === "dyeing") endpoint = "/api/dyeings";
         if (type === "calendar") endpoint = "/api/calender";
 
         const res = await fetch(endpoint);
         const data = await res.json();
         setEntities(Array.isArray(data) ? data : []);
-        setSelectedId(""); // Reset selection
+        setSelectedId(""); 
         setPayments([]);
         setTotal(0);
       } catch (err) {
@@ -49,7 +49,7 @@ export default function Page() {
   const fetchPayments = async () => {
     if (!selectedId) return;
     try {
-      // এখানে type ও পাঠানো হচ্ছে
+      
       const res = await fetch(
         `/api/payments?userId=${selectedId}&type=${type}`
       );

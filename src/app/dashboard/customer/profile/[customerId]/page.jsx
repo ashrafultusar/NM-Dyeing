@@ -50,7 +50,9 @@ export default function CustomerProfileLedger({ params }) {
 
   const fetchCurrentLedger = useCallback(async () => {
     try {
-      const res = await fetch(`/api/customers/ledger/${customerId}?_t=${Date.now()}`);
+      const res = await fetch(
+        `/api/customers/ledger/${customerId}?_t=${Date.now()}`
+      );
       const result = await res.json();
       if (result.success) {
         const {
@@ -68,7 +70,9 @@ export default function CustomerProfileLedger({ params }) {
         setInitialCharge(ic);
         setInitialPayment(ip);
         setInitialDate(id);
-        setCurrentLedger(buildLedger(billings, payments, ob, ic, ip, savedRecordIds));
+        setCurrentLedger(
+          buildLedger(billings, payments, ob, ic, ip, savedRecordIds)
+        );
       }
     } catch {
       toast.error("Failed to load ledger");
@@ -77,7 +81,9 @@ export default function CustomerProfileLedger({ params }) {
 
   const fetchSnapshots = useCallback(async () => {
     try {
-      const res = await fetch(`/api/customers/ledger/${customerId}/snapshots?_t=${Date.now()}`);
+      const res = await fetch(
+        `/api/customers/ledger/${customerId}/snapshots?_t=${Date.now()}`
+      );
       const result = await res.json();
       if (result.success) setSnapshots(result.snapshots);
     } catch {
@@ -96,7 +102,9 @@ export default function CustomerProfileLedger({ params }) {
     async (snapshotId) => {
       if (snapshotCache[snapshotId]) return;
       try {
-        const res = await fetch(`/api/customers/ledger/${customerId}/snapshots/${snapshotId}?_t=${Date.now()}`);
+        const res = await fetch(
+          `/api/customers/ledger/${customerId}/snapshots/${snapshotId}?_t=${Date.now()}`
+        );
         const result = await res.json();
         if (result.success)
           setSnapshotCache((prev) => ({
@@ -127,25 +135,31 @@ export default function CustomerProfileLedger({ params }) {
         payment: 0,
         provider: "SYSTEM",
         type: "debit",
-        companyName: customer?.companyName || "—"
+        companyName: customer?.companyName || "—",
       });
     }
 
     setIsSavingSelected(true);
     const totalCharge = payloadRecords.reduce((a, b) => a + (b.charge || 0), 0);
-    const totalPayment = payloadRecords.reduce((a, b) => a + (b.payment || 0), 0);
+    const totalPayment = payloadRecords.reduce(
+      (a, b) => a + (b.payment || 0),
+      0
+    );
 
     try {
-      const res = await fetch(`/api/customers/ledger/${customerId}/saved-invoices`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title,
-          records: payloadRecords,
-          totalCharge,
-          totalPayment,
-        }),
-      });
+      const res = await fetch(
+        `/api/customers/ledger/${customerId}/saved-invoices`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title,
+            records: payloadRecords,
+            totalCharge,
+            totalPayment,
+          }),
+        }
+      );
       const result = await res.json();
       if (result.success) {
         toast.success("Invoice সফলভাবে সেভ হয়েছে!");
@@ -216,13 +230,24 @@ export default function CustomerProfileLedger({ params }) {
 
   const isCurrentView = selectedView === "current";
   const activeSnapshot = isCurrentView ? null : snapshotCache[selectedView];
-  const displayRows = isCurrentView ? currentLedger : (activeSnapshot?.ledgerData ?? []);
+  const displayRows = isCurrentView
+    ? currentLedger
+    : activeSnapshot?.ledgerData ?? [];
   const displayOpeningBalance = isCurrentView
     ? openingBalance
     : activeSnapshot?.openingBalance ?? 0;
-  const totalCharge = useMemo(() => displayRows.reduce((s, r) => s + (r.charge || 0), 0), [displayRows]);
-  const totalPayment = useMemo(() => displayRows.reduce((s, r) => s + (r.payment || 0), 0), [displayRows]);
-  const finalBalance = useMemo(() => displayOpeningBalance + totalPayment - totalCharge, [displayOpeningBalance, totalPayment, totalCharge]);
+  const totalCharge = useMemo(
+    () => displayRows.reduce((s, r) => s + (r.charge || 0), 0),
+    [displayRows]
+  );
+  const totalPayment = useMemo(
+    () => displayRows.reduce((s, r) => s + (r.payment || 0), 0),
+    [displayRows]
+  );
+  const finalBalance = useMemo(
+    () => displayOpeningBalance + totalPayment - totalCharge,
+    [displayOpeningBalance, totalPayment, totalCharge]
+  );
   const selectedLabel = isCurrentView
     ? "📂 Current Ledger"
     : snapshots.find((s) => s._id === selectedView)?.title ?? "Closed Ledger";
@@ -232,7 +257,6 @@ export default function CustomerProfileLedger({ params }) {
         Generating Statement...
       </div>
     );
-
 
   return (
     <>
@@ -271,19 +295,21 @@ export default function CustomerProfileLedger({ params }) {
           <div className="border-b border-gray-100 bg-gray-50 flex print:hidden">
             <button
               onClick={() => setActiveTab("ledger")}
-              className={`cursor-pointer flex-1 py-4 text-sm font-black uppercase tracking-wider transition-colors ${activeTab === "ledger"
-                ? "text-indigo-600 border-b-2 border-indigo-600 bg-white"
-                : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
-                }`}
+              className={`cursor-pointer flex-1 py-4 text-sm font-black uppercase tracking-wider transition-colors ${
+                activeTab === "ledger"
+                  ? "text-indigo-600 border-b-2 border-indigo-600 bg-white"
+                  : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+              }`}
             >
               Ledger Statement
             </button>
             <button
               onClick={() => setActiveTab("saved-bills")}
-              className={`flex-1 cursor-pointer py-4 text-sm font-black uppercase tracking-wider transition-colors ${activeTab === "saved-bills"
-                ? "text-purple-600 border-b-2 border-purple-600 bg-white"
-                : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
-                }`}
+              className={`flex-1 cursor-pointer py-4 text-sm font-black uppercase tracking-wider transition-colors ${
+                activeTab === "saved-bills"
+                  ? "text-purple-600 border-b-2 border-purple-600 bg-white"
+                  : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+              }`}
             >
               Saved Invoices
             </button>
@@ -293,7 +319,9 @@ export default function CustomerProfileLedger({ params }) {
             <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
               <div>
                 <h1 className="text-xl sm:text-2xl font-black text-gray-900 uppercase">
-                  {activeTab === "ledger" ? "Ledger Statement" : "Saved Bills / Invoices"}
+                  {activeTab === "ledger"
+                    ? "Ledger Statement"
+                    : "Saved Bills / Invoices"}
                 </h1>
                 <div className="mt-4 space-y-1">
                   <p className="font-bold text-blue-600 text-lg">
@@ -309,15 +337,19 @@ export default function CustomerProfileLedger({ params }) {
                 </div>
               </div>
               <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto print:hidden flex-wrap">
-                {activeTab === "ledger" && isCurrentView && selectedRows.length > 0 && (
-                  <button
-                    onClick={() => setShowSaveModal(true)}
-                    disabled={isSavingSelected}
-                    className="flex cursor-pointer items-center gap-2 bg-indigo-600 text-white border border-indigo-700 rounded-xl px-4 py-2.5 text-xs font-bold hover:bg-indigo-700 transition w-full sm:w-auto whitespace-nowrap disabled:opacity-50 shadow-sm"
-                  >
-                    {isSavingSelected ? "Saving..." : `Save Selected (${selectedRows.length})`}
-                  </button>
-                )}
+                {activeTab === "ledger" &&
+                  isCurrentView &&
+                  selectedRows.length > 0 && (
+                    <button
+                      onClick={() => setShowSaveModal(true)}
+                      disabled={isSavingSelected}
+                      className="flex cursor-pointer items-center gap-2 bg-indigo-600 text-white border border-indigo-700 rounded-xl px-4 py-2.5 text-xs font-bold hover:bg-indigo-700 transition w-full sm:w-auto whitespace-nowrap disabled:opacity-50 shadow-sm"
+                    >
+                      {isSavingSelected
+                        ? "Saving..."
+                        : `Save Selected (${selectedRows.length})`}
+                    </button>
+                  )}
                 {activeTab === "ledger" && (
                   <div className="relative">
                     <button
@@ -327,8 +359,9 @@ export default function CustomerProfileLedger({ params }) {
                       {selectedLabel}
                       <FaChevronDown
                         size={10}
-                        className={`transition-transform ${dropdownOpen ? "rotate-180" : ""
-                          }`}
+                        className={`transition-transform ${
+                          dropdownOpen ? "rotate-180" : ""
+                        }`}
                       />
                     </button>
                     {dropdownOpen && (
@@ -338,10 +371,11 @@ export default function CustomerProfileLedger({ params }) {
                             setSelectedView("current");
                             setDropdownOpen(false);
                           }}
-                          className={`w-full text-left cursor-pointer px-4 py-2.5 text-xs font-bold hover:bg-blue-50 flex items-center gap-2 transition ${isCurrentView
-                            ? "text-blue-600 bg-blue-50"
-                            : "text-gray-700"
-                            }`}
+                          className={`w-full text-left cursor-pointer px-4 py-2.5 text-xs font-bold hover:bg-blue-50 flex items-center gap-2 transition ${
+                            isCurrentView
+                              ? "text-blue-600 bg-blue-50"
+                              : "text-gray-700"
+                          }`}
                         >
                           📂 Current Ledger{" "}
                           {isCurrentView && (
@@ -364,8 +398,9 @@ export default function CustomerProfileLedger({ params }) {
                                   setSelectedView(snap._id);
                                   setDropdownOpen(false);
                                 }}
-                                className={`w-full text-left px-4 py-2.5 hover:bg-gray-50 transition cursor-pointer flex items-start gap-2 ${selectedView === snap._id ? "bg-gray-50" : ""
-                                  }`}
+                                className={`w-full text-left px-4 py-2.5 hover:bg-gray-50 transition cursor-pointer flex items-start gap-2 ${
+                                  selectedView === snap._id ? "bg-gray-50" : ""
+                                }`}
                               >
                                 <FaLock
                                   size={9}
@@ -404,14 +439,16 @@ export default function CustomerProfileLedger({ params }) {
                       : "Set Initial"}
                   </button>
                 )}
-                {activeTab === "ledger" && isCurrentView && currentLedger.length > 0 && (
-                  <button
-                    onClick={() => setShowCloseModal(true)}
-                    className="flex items-center gap-2 bg-red-500 text-white px-4 py-2.5 rounded-xl text-xs font-black hover:bg-red-600 transition whitespace-nowrap"
-                  >
-                    <FaLock size={10} /> Close Ledger
-                  </button>
-                )}
+                {activeTab === "ledger" &&
+                  isCurrentView &&
+                  currentLedger.length > 0 && (
+                    <button
+                      onClick={() => setShowCloseModal(true)}
+                      className="flex items-center gap-2 bg-red-500 text-white px-4 py-2.5 rounded-xl text-xs font-black hover:bg-red-600 transition whitespace-nowrap"
+                    >
+                      <FaLock size={10} /> Close Ledger
+                    </button>
+                  )}
                 {activeTab === "ledger" && (
                   <button
                     onClick={() => window.print()}
@@ -443,7 +480,9 @@ export default function CustomerProfileLedger({ params }) {
                   rows={displayRows}
                   openingBalance={displayOpeningBalance}
                   initialCharge={
-                    isCurrentView ? initialCharge : activeSnapshot?.initialCharge ?? 0
+                    isCurrentView
+                      ? initialCharge
+                      : activeSnapshot?.initialCharge ?? 0
                   }
                   initialPayment={
                     isCurrentView
@@ -451,7 +490,9 @@ export default function CustomerProfileLedger({ params }) {
                       : activeSnapshot?.initialPayment ?? 0
                   }
                   initialDate={
-                    isCurrentView ? initialDate : activeSnapshot?.initialDate ?? null
+                    isCurrentView
+                      ? initialDate
+                      : activeSnapshot?.initialDate ?? null
                   }
                   isCurrentView={isCurrentView}
                   selectedRows={selectedRows}
@@ -471,7 +512,11 @@ export default function CustomerProfileLedger({ params }) {
               <CustomerSavedBillsTab
                 customerId={customerId}
                 selectedView={selectedView}
-                availableRows={isCurrentView ? currentLedger.filter(r => !r.isSaved && r.recordId) : []}
+                availableRows={
+                  isCurrentView
+                    ? currentLedger.filter((r) => !r.isSaved && r.recordId)
+                    : []
+                }
                 onInvoiceUpdated={fetchCurrentLedger}
               />
             </div>
