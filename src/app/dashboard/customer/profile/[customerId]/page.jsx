@@ -1,13 +1,18 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState, use, useCallback, useMemo, useRef } from "react";
+import React, {
+  useEffect,
+  useState,
+  use,
+  useCallback,
+  useMemo,
+  useRef,
+} from "react";
 import {
   FaArrowLeft,
   FaChevronDown,
-  FaChevronUp,
   FaLock,
-  FaTimes,
   FaCheckCircle,
   FaEdit,
   FaPrint,
@@ -49,7 +54,7 @@ export default function CustomerProfileLedger({ params }) {
   const [pageLoading, setPageLoading] = useState(true);
   const [selectedRows, setSelectedRows] = useState([]);
   const [isSavingSelected, setIsSavingSelected] = useState(false);
-  const [activeTab, setActiveTab] = useState("ledger"); // 'ledger' or 'saved-bills'
+  const [activeTab, setActiveTab] = useState("ledger");
 
   const fetchCurrentLedger = useCallback(async () => {
     try {
@@ -132,7 +137,9 @@ export default function CustomerProfileLedger({ params }) {
 
     if (saveMode === "ledger") {
       try {
-        const invRes = await fetch(`/api/customers/ledger/${customerId}/saved-invoices?view=${selectedView}&_t=${Date.now()}`);
+        const invRes = await fetch(
+          `/api/customers/ledger/${customerId}/saved-invoices?view=${selectedView}&_t=${Date.now()}`
+        );
         const invData = await invRes.json();
         const savedInvoices = invData.success ? invData.invoices : [];
 
@@ -140,11 +147,15 @@ export default function CustomerProfileLedger({ params }) {
         let foundBalance = false;
 
         if (savedInvoices.length > 0) {
-          const sortedInvoices = savedInvoices.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+          const sortedInvoices = savedInvoices.sort(
+            (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+          );
           const lastInvoice = sortedInvoices[0];
 
           if (lastInvoice.records && lastInvoice.records.length > 0) {
-            const recordWithBalance = [...lastInvoice.records].reverse().find(r => r.balance !== undefined && r.balance !== null);
+            const recordWithBalance = [...lastInvoice.records]
+              .reverse()
+              .find((r) => r.balance !== undefined && r.balance !== null);
             if (recordWithBalance) {
               bal = recordWithBalance.balance;
               foundBalance = true;
@@ -167,24 +178,29 @@ export default function CustomerProfileLedger({ params }) {
           if (prevDueAmt > 0) {
             payloadRecords.unshift({
               date: new Date().toISOString(),
-              description: isCharge ? "Previous Due" : "Previous Ledger Balance (Payment)",
+              description: isCharge
+                ? "Previous Due"
+                : "Previous Ledger Balance (Payment)",
               charge: isCharge ? prevDueAmt : 0,
               payment: isCharge ? 0 : prevDueAmt,
               provider: "SYSTEM",
               type: isCharge ? "debit" : "credit",
-              companyName: customer?.companyName || "—"
+              companyName: customer?.companyName || "—",
             });
           }
         } else {
           if (initialCharge > 0 || initialPayment > 0) {
             payloadRecords.unshift({
               date: new Date().toISOString(),
-              description: (initialPayment > 0 && initialCharge === 0) ? "Previous Ledger Balance (Payment)" : "Previous Ledger Balance / Due",
+              description:
+                initialPayment > 0 && initialCharge === 0
+                  ? "Previous Ledger Balance (Payment)"
+                  : "Previous Ledger Balance / Due",
               charge: initialCharge > 0 ? initialCharge : 0,
               payment: initialPayment > 0 ? initialPayment : 0,
               provider: "SYSTEM",
               type: initialCharge > 0 ? "debit" : "credit",
-              companyName: customer?.companyName || "—"
+              companyName: customer?.companyName || "—",
             });
           }
         }
@@ -303,14 +319,22 @@ export default function CustomerProfileLedger({ params }) {
   const displayOpeningBalance = isCurrentView
     ? openingBalance
     : activeSnapshot?.openingBalance ?? 0;
-  const currentInitialCharge = isCurrentView ? initialCharge : (activeSnapshot?.initialCharge ?? 0);
-  const currentInitialPayment = isCurrentView ? initialPayment : (activeSnapshot?.initialPayment ?? 0);
+  const currentInitialCharge = isCurrentView
+    ? initialCharge
+    : activeSnapshot?.initialCharge ?? 0;
+  const currentInitialPayment = isCurrentView
+    ? initialPayment
+    : activeSnapshot?.initialPayment ?? 0;
   const totalCharge = useMemo(
-    () => currentInitialCharge + displayRows.reduce((s, r) => s + (r.charge || 0), 0),
+    () =>
+      currentInitialCharge +
+      displayRows.reduce((s, r) => s + (r.charge || 0), 0),
     [displayRows, currentInitialCharge]
   );
   const totalPayment = useMemo(
-    () => currentInitialPayment + displayRows.reduce((s, r) => s + (r.payment || 0), 0),
+    () =>
+      currentInitialPayment +
+      displayRows.reduce((s, r) => s + (r.payment || 0), 0),
     [displayRows, currentInitialPayment]
   );
   const finalBalance = useMemo(
@@ -364,19 +388,21 @@ export default function CustomerProfileLedger({ params }) {
           <div className="border-b border-gray-100 bg-gray-50 flex print:hidden">
             <button
               onClick={() => setActiveTab("ledger")}
-              className={`cursor-pointer flex-1 py-4 text-sm font-black uppercase tracking-wider transition-colors ${activeTab === "ledger"
-                ? "text-indigo-600 border-b-2 border-indigo-600 bg-white"
-                : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
-                }`}
+              className={`cursor-pointer flex-1 py-4 text-sm font-black uppercase tracking-wider transition-colors ${
+                activeTab === "ledger"
+                  ? "text-indigo-600 border-b-2 border-indigo-600 bg-white"
+                  : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+              }`}
             >
               Ledger Statement
             </button>
             <button
               onClick={() => setActiveTab("saved-bills")}
-              className={`flex-1 cursor-pointer py-4 text-sm font-black uppercase tracking-wider transition-colors ${activeTab === "saved-bills"
-                ? "text-purple-600 border-b-2 border-purple-600 bg-white"
-                : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
-                }`}
+              className={`flex-1 cursor-pointer py-4 text-sm font-black uppercase tracking-wider transition-colors ${
+                activeTab === "saved-bills"
+                  ? "text-purple-600 border-b-2 border-purple-600 bg-white"
+                  : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+              }`}
             >
               Saved Invoices
             </button>
@@ -426,8 +452,9 @@ export default function CustomerProfileLedger({ params }) {
                       {selectedLabel}
                       <FaChevronDown
                         size={10}
-                        className={`transition-transform ${dropdownOpen ? "rotate-180" : ""
-                          }`}
+                        className={`transition-transform ${
+                          dropdownOpen ? "rotate-180" : ""
+                        }`}
                       />
                     </button>
                     {dropdownOpen && (
@@ -437,10 +464,11 @@ export default function CustomerProfileLedger({ params }) {
                             setSelectedView("current");
                             setDropdownOpen(false);
                           }}
-                          className={`w-full text-left cursor-pointer px-4 py-2.5 text-xs font-bold hover:bg-blue-50 flex items-center gap-2 transition ${isCurrentView
-                            ? "text-blue-600 bg-blue-50"
-                            : "text-gray-700"
-                            }`}
+                          className={`w-full text-left cursor-pointer px-4 py-2.5 text-xs font-bold hover:bg-blue-50 flex items-center gap-2 transition ${
+                            isCurrentView
+                              ? "text-blue-600 bg-blue-50"
+                              : "text-gray-700"
+                          }`}
                         >
                           📂 Current Ledger{" "}
                           {isCurrentView && (
@@ -463,8 +491,9 @@ export default function CustomerProfileLedger({ params }) {
                                   setSelectedView(snap._id);
                                   setDropdownOpen(false);
                                 }}
-                                className={`w-full text-left px-4 py-2.5 hover:bg-gray-50 transition cursor-pointer flex items-start gap-2 ${selectedView === snap._id ? "bg-gray-50" : ""
-                                  }`}
+                                className={`w-full text-left px-4 py-2.5 hover:bg-gray-50 transition cursor-pointer flex items-start gap-2 ${
+                                  selectedView === snap._id ? "bg-gray-50" : ""
+                                }`}
                               >
                                 <FaLock
                                   size={9}
@@ -518,7 +547,7 @@ export default function CustomerProfileLedger({ params }) {
                     onClick={handlePrint}
                     className="cursor-pointer bg-blue-600 text-white px-6 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap"
                   >
-                    PRINT
+                    <FaPrint size={14} />
                   </button>
                 )}
               </div>
@@ -605,7 +634,13 @@ export default function CustomerProfileLedger({ params }) {
                 openingBalance={displayOpeningBalance}
                 initialCharge={currentInitialCharge}
                 initialPayment={currentInitialPayment}
-                initialDate={currentInitialCharge > 0 || currentInitialPayment > 0 ? (isCurrentView ? initialDate : activeSnapshot?.initialDate) : null}
+                initialDate={
+                  currentInitialCharge > 0 || currentInitialPayment > 0
+                    ? isCurrentView
+                      ? initialDate
+                      : activeSnapshot?.initialDate
+                    : null
+                }
                 totalCharge={totalCharge}
                 totalPayment={totalPayment}
                 finalBalance={finalBalance}

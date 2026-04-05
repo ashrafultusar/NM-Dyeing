@@ -176,3 +176,13 @@ input[type="number"] {
   }
 }
 
+/* @media print {
+  @page {
+    size: A5; 
+    margin: 5mm; 
+  }
+
+  body {
+    -webkit-print-color-adjust: exact;
+  }
+} */
