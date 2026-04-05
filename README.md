@@ -1,2 +1,2 @@
 URL:
-https://garments-inventory-management.vercel.app
+https://nm-dyeing.vercel.app
