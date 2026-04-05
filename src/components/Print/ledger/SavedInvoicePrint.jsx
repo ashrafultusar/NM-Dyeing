@@ -14,6 +14,29 @@ export default function SavedInvoicePrint({ invoice }) {
     const netDue = totalCharge - totalPayment;
 
     return (
+        <>
+        <style dangerouslySetInnerHTML={{ __html: `
+                @media print {
+                    @page { 
+                        size: A5; 
+                        margin: 5mm; 
+                    }
+                    body { 
+                        margin: 0; 
+                        padding: 0; 
+                    }
+                    .print-area {
+                        width: 100% !important;
+                        max-width: 100% !important;
+                        padding: 0 !important;
+                        margin: 0 !important;
+                        border: none !important;
+                    }
+                    /* টেবিলের ফন্ট সাইজ A5 এর জন্য ছোট করা */
+                    table { font-size: 9px !important; }
+                    th, td { padding: 4px 2px !important; }
+                }
+            `}} />
         <div className="print-area font-sans mt-12 text-gray-900 bg-white p-10 max-w-4xl mx-auto border border-gray-300 rounded-lg shadow-md print:shadow-none print:border-none print:p-0 print:m-0 print:max-w-full">
             {/* HEADER */}
             <div className="border-b-2 border-black pb-3 mb-4">
@@ -154,5 +177,6 @@ export default function SavedInvoicePrint({ invoice }) {
                 </div>
             </div>
         </div>
+        </>
     );
 }

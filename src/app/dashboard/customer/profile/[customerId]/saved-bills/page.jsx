@@ -137,7 +137,7 @@ export default function CustomerSavedBills({ params }) {
                           e.stopPropagation();
                           handlePrint(inv._id);
                         }}
-                        className="bg-blue-100 text-blue-600 p-2 rounded-lg hover:bg-blue-200 transition"
+                        className=" bg-blue-100 text-blue-600 p-2 rounded-lg hover:bg-blue-200 transition"
                         title="Print Invoice"
                       >
                         <FaPrint size={14} />
