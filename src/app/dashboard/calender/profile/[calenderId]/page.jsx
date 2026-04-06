@@ -250,7 +250,7 @@ export default function CalenderProfileLedger({ params }) {
                 : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
                 }`}
             >
-              Saved Invoices
+              Billing Invoices
             </button>
           </div>
 

@@ -6,16 +6,18 @@ import { IoLogoWhatsapp } from "react-icons/io";
 import { fmtDate } from "@/components/customer/ledgerUtils";
 
 export default function SavedInvoicePrint({ invoice }) {
-    if (!invoice) return null;
+  if (!invoice) return null;
 
-    const records = invoice.records || [];
-    const totalCharge = invoice.totalCharge || 0;
-    const totalPayment = invoice.totalPayment || 0;
-    const netDue = totalCharge - totalPayment;
+  const records = invoice.records || [];
+  const totalCharge = invoice.totalCharge || 0;
+  const totalPayment = invoice.totalPayment || 0;
+  const netDue = totalCharge - totalPayment;
 
-    return (
-        <>
-        <style dangerouslySetInnerHTML={{ __html: `
+  return (
+    <>
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
                 @media print {
                     @page { 
                         size: A5; 
@@ -32,151 +34,180 @@ export default function SavedInvoicePrint({ invoice }) {
                         margin: 0 !important;
                         border: none !important;
                     }
-                    /* টেবিলের ফন্ট সাইজ A5 এর জন্য ছোট করা */
                     table { font-size: 9px !important; }
                     th, td { padding: 4px 2px !important; }
                 }
-            `}} />
-        <div className="print-area font-sans mt-12 text-gray-900 bg-white p-10 max-w-4xl mx-auto border border-gray-300 rounded-lg shadow-md print:shadow-none print:border-none print:p-0 print:m-0 print:max-w-full">
-            {/* HEADER */}
-            <div className="border-b-2 border-black pb-3 mb-4">
-                <div className="flex flex-col items-center">
-                    <div className="flex items-center gap-3 justify-center">
-                        <Image
-                            src="/Image/logo.png"
-                            alt="Company Logo"
-                            width={60}
-                            height={60}
-                            priority
-                            loading="eager"
-                            className="object-contain"
-                        />
-                        <h1 className="text-2xl font-bold text-center -mb-3">
-                            মেসার্স এম.এন ডাইং এন্ড ফিনিশিং এজেন্ট
-                        </h1>
-                    </div>
-                    <p className="text-sm text-center mt-2">ঠিকানা: মাধবদী, নরসিংদী</p>
-                    <p className="flex items-center justify-center gap-2 text-base whitespace-nowrap mt-1">
-                        <span>Phone:</span>
-                        <span>01711201870</span>
-                        <span>01782155151</span>
-                        <IoLogoWhatsapp className="text-green-600 text-xl" />
-                        <Image src="/Image/bkash.png" width={18} height={18} alt="bKash" priority loading="eager" />
-                    </p>
-                </div>
+            `,
+        }}
+      />
+      <div className="print-area font-sans mt-8 text-gray-900 bg-white p-8 max-w-4xl mx-auto border border-gray-300 rounded-lg shadow-md print:shadow-none print:border-none print:p-0 print:m-0 print:max-w-full">
+        {/* HEADER - Consistent with Ledger Style */}
+        <div className="border-b-[0.5px] border-black/20 pb-1">
+          <div className="flex flex-col items-center">
+            <div className="flex items-center gap-2 -mb-2 justify-center">
+              <Image
+                src="/Image/logo.png"
+                alt="Company Logo"
+                width={35}
+                height={35}
+                priority
+                className="object-contain"
+              />
+              <h1 className="text-lg font-bold opacity-75 text-center leading-tight">
+                মেসার্স এম.এন ডাইং এন্ড ফিনিশিং এজেন্ট
+              </h1>
             </div>
-
-            <h2 className="text-center font-bold text-lg uppercase mb-4 border-b pb-2 inline-block mx-auto w-full">
-                {invoice.title || "Invoice"}
-            </h2>
-
-            {/* INVOICE INFO */}
-            <div className="grid grid-cols-2 text-sm font-medium border-b border-gray-400 pb-2 mb-4">
-                <div className="space-y-1">
-                    <p>
-                        Company: <span className="font-bold text-base">{invoice.companyName || "—"}</span>
-                    </p>
-                    {invoice.orderIds?.length > 0 && (
-                        <p>
-                            Orders: <span className="font-normal">{invoice.orderIds.join(", ")}</span>
-                        </p>
-                    )}
-                </div>
-                <div className="space-y-1 text-right">
-                    <p>
-                        Invoice No: <span className="font-bold text-base">{invoice.invoiceNumber || "—"}</span>
-                    </p>
-                    <p>
-                        Date: <span className="font-normal">{invoice.createdAt ? fmtDate(invoice.createdAt) : "—"}</span>
-                    </p>
-                </div>
-            </div>
-
-            {/* TABLE */}
-            <table className="w-full border border-gray-400 border-collapse text-xs mb-8">
-                <thead>
-                    <tr className="bg-gray-100">
-                        <th className="border border-gray-400 py-2 px-2 text-left">Date</th>
-                        <th className="border border-gray-400 py-2 px-2 text-left">Order ID</th>
-                        <th className="border border-gray-400 py-2 px-2 text-left">Method</th>
-                        <th className="border border-gray-400 py-2 px-2 text-left">Description</th>
-                        <th className="border border-gray-400 py-2 px-2 text-right">Charge (+)</th>
-                        <th className="border border-gray-400 py-2 px-2 text-right">Payment (-)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {records.map((row, idx) => (
-                        <tr key={idx} className="even:bg-gray-50 text-gray-800">
-                            <td className="border border-gray-400 py-2 px-2 whitespace-nowrap">{fmtDate(row.date)}</td>
-                            <td className="border border-gray-400 py-2 px-2 font-bold">{row.displayOrderId || "—"}</td>
-                            <td className="border border-gray-400 py-2 px-2 text-center text-[10px] font-bold uppercase">{row.provider}</td>
-                            <td className="border border-gray-400 py-2 px-2">
-                                <div className="font-bold">{row.description}</div>
-                                {row.colour && <span className="text-[10px] text-gray-500 italic">Color: {row.colour}</span>}
-                            </td>
-                            <td className="border border-gray-400 py-2 px-2 text-right">
-                                {row.charge > 0 ? (
-                                    row.qty && row.price ? (
-                                        <span>({row.qty} × {row.price}) = ৳{row.charge.toLocaleString()}</span>
-                                    ) : (
-                                        `৳${row.charge.toLocaleString()}`
-                                    )
-                                ) : "—"}
-                            </td>
-                            <td className="border border-gray-400 py-2 px-2 text-right">
-                                {row.payment > 0 ? `৳${row.payment.toLocaleString()}` : "—"}
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-                <tfoot>
-                    <tr className="bg-gray-100 font-bold text-sm">
-                        <td colSpan={4} className="border border-gray-400 py-2 px-2 text-right uppercase">Totals:</td>
-                        <td className="border border-gray-400 py-2 px-2 text-right text-gray-900">৳{totalCharge.toLocaleString()}</td>
-                        <td className="border border-gray-400 py-2 px-2 text-right text-green-600">৳{totalPayment.toLocaleString()}</td>
-                    </tr>
-                    <tr className="bg-white">
-                        <td colSpan={4} className="border border-gray-400 py-2 px-2 text-right text-indigo-600 uppercase font-black">Net Due:</td>
-                        <td colSpan={2} className={`border border-gray-400 py-2 px-2 text-right font-black tracking-tight ${netDue > 0 ? "text-red-600" : "text-gray-900"}`}>
-                            ৳{netDue.toLocaleString()}
-                        </td>
-                    </tr>
-                </tfoot>
-            </table>
-
-            {/* SUMMARY */}
-            <div className="w-full flex justify-end text-sm">
-                <div className="w-[300px] border border-gray-400 p-2 text-xs">
-                    <div className="flex justify-between py-1 border-b">
-                        <span>Total Billed:</span>
-                        <span className="font-bold">৳{totalCharge.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between py-1 border-b">
-                        <span>Total Paid:</span>
-                        <span className="font-bold text-green-600">৳{totalPayment.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between py-1 mt-2 text-sm font-black">
-                        <span className="uppercase text-indigo-600">Net Due:</span>
-                        <span className={netDue > 0 ? "text-red-600" : "text-gray-900"}>
-                            ৳{netDue.toLocaleString()}
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            {/* Signatures */}
-            <div className="flex justify-between items-center text-xs mt-20">
-                <div className="text-center pt-2" style={{ width: "150px", borderTop: "1px solid black" }}>
-                    <p>গ্রাহকের স্বাক্ষর</p>
-                </div>
-                <div className="text-[10px] text-gray-500 font-medium uppercase mt-2">
-                    Printed: {new Date().toLocaleString()}
-                </div>
-                <div className="text-center pt-2" style={{ width: "150px", borderTop: "1px solid black" }}>
-                    <p>কর্তৃপক্ষের স্বাক্ষর</p>
-                </div>
-            </div>
+            <p className="text-[10px] text-center mt-0.5">
+              ঠিকানা: মাধবদী, নরসিংদী
+            </p>
+            <p className="flex items-center justify-center gap-2 text-[11px]">
+              <span className="font-semibold opacity-80">Phone:</span>
+              <span>01711201870, 01782155151</span>
+              <IoLogoWhatsapp className="text-green-600 text-base" />
+              <Image
+                src="/Image/bkash.png"
+                width={12}
+                height={12}
+                alt="bKash"
+                priority
+              />
+            </p>
+          </div>
         </div>
-        </>
-    );
+
+        {/* INVOICE INFO - Grid Layout matching Ledger */}
+        <div className="grid grid-cols-2 text-[11px] border-b border-gray-400 pb-1 mb-2 mt-1 leading-tight">
+          <div className="space-y-0">
+            <p className=" p-0">
+              Company:{" "}
+              <span className="font-medium opacity-80">
+                {invoice.companyName || "—"}
+              </span>
+            </p>
+          </div>
+          <div className="text-right">
+            <p>
+              Invoice No:{" "}
+              <span className="font-medium opacity-80">
+                {invoice.invoiceNumber || "—"}
+              </span>
+            </p>
+
+            <p>
+              Date:{" "}
+              <span className="font-medium opacity-80">
+                {invoice.createdAt ? fmtDate(invoice.createdAt) : "—"}
+              </span>
+            </p>
+
+            <p className=" font-medium opacity-80">
+              Printed: {new Date().toLocaleString()}
+            </p>
+          </div>
+        </div>
+
+        {/* TABLE - Zebra Striped & Clean Lines */}
+        <table className="w-full text-[10px] mb-4 border-collapse">
+          <thead>
+            <tr className="text-gray-600 border-b-[0.5px] border-gray-300">
+              <th className="py-2 px-2 text-center font-bold">Date</th>
+              <th className="py-2 px-2 text-center font-bold">Order ID</th>
+              <th className="py-2 px-2 text-center font-bold">Method</th>
+              <th className="py-2 px-2 text-center font-bold">Description</th>
+              <th className="py-2 px-2 text-center font-bold">Charge (+)</th>
+              <th className="py-2 px-2 text-center font-bold">Payment (-)</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {records.map((row, idx) => (
+              <tr
+                key={idx}
+                className={`${
+                  idx % 2 !== 0 ? "bg-[#f8f9fa]" : "bg-white"
+                } text-[#374151]`}
+              >
+                <td className="py-2.5 px-2 text-center whitespace-nowrap font-medium text-gray-600">
+                  {fmtDate(row.date)}
+                </td>
+                <td className="py-2.5 px-2 text-center font-medium text-gray-600">
+                  {row.displayOrderId || "—"}
+                </td>
+                <td className="py-2.5 px-2 text-center text-[9px] font-medium text-gray-600 uppercase">
+                  {row.provider}
+                </td>
+                <td className="py-2.5 px-2 text-center">
+                  <div className="font-medium text-gray-600">
+                    {row.description}
+                  </div>
+                  {row.colour && (
+                    <div className="text-[9px] mt-0.5">
+                      <span className="text-gray-400 italic">Color: </span>
+                      <span className="">{row.colour}</span>
+                    </div>
+                  )}
+                </td>
+                <td className="py-2.5 px-2 text-center font-medium text-gray-600">
+                  {row.charge > 0 ? (
+                    row.qty && row.price ? (
+                      <span className="text-[8px]">
+                        ({row.qty}×{row.price})=৳{row.charge.toLocaleString()}
+                      </span>
+                    ) : (
+                      `৳${row.charge.toLocaleString()}`
+                    )
+                  ) : (
+                    "—"
+                  )}
+                </td>
+                <td className="py-2.5 px-2 text-center font-medium text-gray-600">
+                  {row.payment > 0 ? `৳${row.payment.toLocaleString()}` : "—"}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {/* SUMMARY - Box matching Ledger style */}
+        <div className="w-full flex justify-end text-[11px]">
+          <div className="w-[180px] border border-gray-300 p-1.5 leading-tight">
+            <div className="flex justify-between py-0.5 border-b">
+              <span>Total Billing:</span>
+              <span className="font-medium text-gray-600">
+                ৳{totalCharge.toLocaleString()}
+              </span>
+            </div>
+            <div className="flex justify-between py-0.5 border-b">
+              <span>Total Received:</span>
+              <span className="font-medium text-gray-600">
+                ৳{totalPayment.toLocaleString()}
+              </span>
+            </div>
+            <div className="flex justify-between py-1 font-bold text-gray-600">
+              <span>Net Due:</span>
+              <span>
+                {netDue < 0
+                  ? `- ৳${Math.abs(netDue).toLocaleString()}`
+                  : `৳${netDue.toLocaleString()} +`}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* SIGNATURES - Consistent Spacing */}
+        <div className="flex justify-between items-center text-[10px] mt-16 print:mt-12">
+          <div className="text-center pt-1.5 w-[100px] border-t border-black/20">
+            <p className="font-medium text-gray-600">গ্রাহকের স্বাক্ষর</p>
+          </div>
+
+          <div className="text-[8px] text-gray-400 font-medium uppercase italic">
+            Printed: {new Date().toLocaleString()}
+          </div>
+
+          <div className="text-center pt-1.5 w-[130px] border-t border-black/20">
+            <p className="font-medium text-gray-600">কর্তৃপক্ষের স্বাক্ষর</p>
+          </div>
+        </div>
+      </div>
+    </>
+  );
 }
