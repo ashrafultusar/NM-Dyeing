@@ -29,7 +29,7 @@ export default function LedgerPrint({
           __html: `
                 @media print {
                     @page { 
-                        size: A5; 
+                        size: A4; 
                         margin: 5mm; 
                     }
                     body { 
