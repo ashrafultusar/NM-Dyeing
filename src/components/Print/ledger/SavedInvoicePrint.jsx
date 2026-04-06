@@ -166,8 +166,6 @@ export default function SavedInvoicePrint({ invoice }) {
             ))}
           </tbody>
         </table>
-
-        {/* SUMMARY - Box matching Ledger style */}
         <div className="w-full flex justify-end text-[11px]">
           <div className="w-[180px] border border-gray-300 p-1.5 leading-tight">
             <div className="flex justify-between py-0.5 border-b">
