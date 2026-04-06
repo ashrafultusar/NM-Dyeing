@@ -124,6 +124,11 @@ export default function LedgerPrint({
                 {customer?.address || "—"}
               </span>
             </p>
+          
+            
+                        <p className="text-[8px] font-medium opacity-80">
+                          Printed: {new Date().toLocaleString()}
+                        </p>
           </div>
         </div>
 
@@ -227,9 +232,7 @@ export default function LedgerPrint({
             <p className="font-medium text-gray-600">গ্রাহকের স্বাক্ষর</p>
           </div>
 
-          <div className="text-[8px] text-gray-400 font-medium uppercase italic">
-            Printed: {new Date().toLocaleString()}
-          </div>
+          
 
           <div className="text-center pt-1.5 w-[130px] border-t border-black/20">
             {" "}

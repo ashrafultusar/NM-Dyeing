@@ -95,12 +95,12 @@ export default function SavedInvoicePrint({ invoice }) {
 
             <p>
               Date:{" "}
-              <span className="font-medium opacity-80">
+              <span className=" opacity-80">
                 {invoice.createdAt ? fmtDate(invoice.createdAt) : "—"}
               </span>
             </p>
 
-            <p className=" font-medium opacity-80">
+            <p className="text-[8px] font-medium opacity-80">
               Printed: {new Date().toLocaleString()}
             </p>
           </div>
@@ -183,13 +183,14 @@ export default function SavedInvoicePrint({ invoice }) {
               </span>
             </div>
             <div className="flex justify-between py-1 font-bold text-gray-600">
-              <span>Net Due:</span>
-              <span>
-                {netDue < 0
-                  ? `- ৳${Math.abs(netDue).toLocaleString()}`
-                  : `৳${netDue.toLocaleString()} +`}
-              </span>
-            </div>
+  <span>Balance:</span>
+  <span>
+    {netDue < 0 
+      ? `+ ৳${Math.abs(netDue).toLocaleString()}` 
+      : `- ৳${netDue.toLocaleString()}`
+    }
+  </span>
+</div>
           </div>
         </div>
 
@@ -199,9 +200,7 @@ export default function SavedInvoicePrint({ invoice }) {
             <p className="font-medium text-gray-600">গ্রাহকের স্বাক্ষর</p>
           </div>
 
-          <div className="text-[8px] text-gray-400 font-medium uppercase italic">
-            Printed: {new Date().toLocaleString()}
-          </div>
+         
 
           <div className="text-center pt-1.5 w-[130px] border-t border-black/20">
             <p className="font-medium text-gray-600">কর্তৃপক্ষের স্বাক্ষর</p>
