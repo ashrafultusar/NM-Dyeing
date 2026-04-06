@@ -29,7 +29,7 @@ export default function LedgerPrint({
           __html: `
                 @media print {
                     @page { 
-                        size: A5; 
+                        size: A4; 
                         margin: 5mm; 
                     }
                     body { 
@@ -43,77 +43,84 @@ export default function LedgerPrint({
                         margin: 0 !important;
                         border: none !important;
                     }
-                    /* টেবিলের ফন্ট সাইজ A5 এর জন্য ছোট করা */
                     table { font-size: 9px !important; }
                     th, td { padding: 4px 2px !important; }
                 }
             `,
         }}
       />
-      <div className="print-area font-sans mt-12 text-gray-900 bg-white p-10 max-w-4xl mx-auto border border-gray-300 rounded-lg shadow-md print:shadow-none print:border-none print:p-0 print:m-0 print:max-w-full">
+      <div className="print-area font-sans mt-8 text-gray-900 bg-white p-8 max-w-4xl mx-auto border border-gray-300 rounded-lg shadow-md print:shadow-none print:border-none print:p-0 print:m-0 print:max-w-full">
         {/* HEADER */}
-        <div className="border-b-2 border-black pb-3 mb-4">
+        <div className="border-b-[0.5px] border-black/20 pb-1">
           <div className="flex flex-col items-center">
-            <div className="flex items-center gap-3 justify-center">
+            <div
+              className="flex items-center gap-2 -mb-2
+             justify-center"
+            >
               <Image
                 src="/Image/logo.png"
                 alt="Company Logo"
-                width={60}
-                height={60}
+                width={35}
+                height={35}
                 priority
-                loading="eager"
                 className="object-contain"
               />
-              <h1 className="text-2xl font-bold text-center -mb-3">
+              <h1 className="text-lg font-bold opacity-75 text-center leading-tight">
                 মেসার্স এম.এন ডাইং এন্ড ফিনিশিং এজেন্ট
               </h1>
             </div>
-            <p className="text-sm text-center mt-2">ঠিকানা: মাধবদী, নরসিংদী</p>
-            <p className="flex items-center justify-center gap-2 text-base whitespace-nowrap mt-1">
-              <span>Phone:</span>
-              <span>01711201870</span>
-              <span>01782155151</span>
-              <IoLogoWhatsapp className="text-green-600 text-xl" />
+            <p className="text-[10px] text-center mt-0.5">
+              ঠিকানা: মাধবদী, নরসিংদী
+            </p>
+            <p className="flex items-center justify-center gap-2 text-[11px] ">
+              <span className="font-semibold opacity-80">Phone:</span>
+              <span>01711201870, 01782155151</span>
+              <IoLogoWhatsapp className="text-green-600 text-base" />
               <Image
                 src="/Image/bkash.png"
-                width={18}
-                height={18}
+                width={12}
+                height={12}
                 alt="bKash"
                 priority
-                loading="eager"
               />
             </p>
           </div>
         </div>
 
-        <h2 className="text-center font-bold text-lg uppercase mb-4 border-b pb-2 inline-block mx-auto w-full">
-          Ledger Statement - {selectedLabel}
+        {/* Selected Label - Top margin further reduced */}
+        <h2 className="text-start mt-1 text-[7px] uppercase font-bold text-gray-500 mb-0.5">
+          {selectedLabel}
         </h2>
 
-        {/* CUSTOMER INFO */}
-        <div className="grid grid-cols-2 text-sm font-medium border-b border-gray-400 pb-2 mb-4">
-          <div className="space-y-1">
-            <p>
+        {/* CUSTOMER INFO - Vertical spacing minimized */}
+        <div className="grid grid-cols-2 text-[11px] border-b border-gray-400 pb-1 mb-2 leading-tight">
+          <div className="space-y-0">
+            <p className="m-0 p-0">
               {role}:{" "}
-              <span className="font-bold text-base">
+              <span
+                className="font-medium
+              opacity-80 "
+              >
                 {customer?.companyName || "—"}
               </span>
             </p>
-            <p>
+            <p className="m-0 p-0">
               Owner:{" "}
-              <span className="font-normal">{customer?.ownerName || "—"}</span>
+              <span className="font-medium text-gray-700">
+                {customer?.ownerName || "—"}
+              </span>
             </p>
           </div>
-          <div className="space-y-1 text-right">
-            <p>
+          <div className="space-y-0 text-right">
+            <p className="m-0 p-0">
               Phone:{" "}
-              <span className="font-normal">
+              <span className="font-medium">
                 {customer?.phoneNumber || "—"}
               </span>
             </p>
-            <p>
+            <p className="m-0 p-0">
               Address:{" "}
-              <span className="font-normal uppercase text-xs">
+              <span className="font-normal uppercase text-[9px]">
                 {customer?.address || "—"}
               </span>
             </p>
@@ -121,189 +128,113 @@ export default function LedgerPrint({
         </div>
 
         {/* TABLE */}
-        <table className="w-full border border-gray-400 border-collapse text-xs mb-8">
+
+        <table className="w-full text-[10px] mb-4 border-collapse">
           <thead>
-            <tr className="bg-gray-100">
-              <th className="border border-gray-400 py-2 px-2 text-left">
-                Date
-              </th>
-              <th className="border border-gray-400 py-2 px-2 text-left">
-                Order ID
-              </th>
-              <th className="border border-gray-400 py-2 px-2 text-left">
-                Method
-              </th>
-              <th className="border border-gray-400 py-2 px-2 text-left">
-                Description
-              </th>
-              <th className="border border-gray-400 py-2 px-2 text-right">
-                Charge (+)
-              </th>
-              <th className="border border-gray-400 py-2 px-2 text-right">
-                Payment (-)
-              </th>
-              <th className="border border-gray-400 py-2 px-2 text-right">
-                Balance
-              </th>
+            <tr className="text-gray-600 border-b-[0.5px] border-gray-300">
+              <th className="py-2 px-2 text-center font-bold">Date</th>
+              <th className="py-2 px-2 text-center font-bold">Order ID</th>
+              <th className="py-2 px-2 text-center font-bold">Method</th>
+              <th className="py-2 px-2 text-center font-bold">Description</th>
+              <th className="py-2 px-2 text-center font-bold">Charge (+)</th>
+              <th className="py-2 px-2 text-center font-bold">Payment (-)</th>
+              <th className="py-2 px-2 text-center font-bold">Balance</th>
             </tr>
           </thead>
-          <tbody>
-            {openingBalance !== 0 && (
-              <tr className="bg-gray-50 text-gray-800">
-                <td className="border border-gray-400 py-1 px-2 font-medium text-center">
-                  —
-                </td>
-                <td className="border border-gray-400 py-1 px-2 font-bold text-center">
-                  —
-                </td>
-                <td className="border border-gray-400 py-1 px-2 text-center text-[10px] font-bold">
-                  CARRY FWD
-                </td>
-                <td className="border border-gray-400 py-1 px-2 font-bold italic">
-                  Opening Balance (Previous Period)
-                </td>
-                <td className="border border-gray-400 py-1 px-2 text-right text-center">
-                  —
-                </td>
-                <td className="border border-gray-400 py-1 px-2 text-right text-center">
-                  —
-                </td>
-                <td className="border border-gray-400 py-1 px-2 text-right font-bold">
-                  {openingBalance < 0
-                    ? `- ৳${Math.abs(openingBalance).toLocaleString()}`
-                    : `+ ৳${openingBalance.toLocaleString()}`}
-                </td>
-              </tr>
-            )}
-            {hasInitial && (
-              <tr className="bg-gray-50 text-gray-800">
-                <td className="border border-gray-400 py-1 px-2">
-                  {initialDate ? fmtDate(initialDate) : "—"}
-                </td>
-                <td className="border border-gray-400 py-1 px-2 font-bold text-center">
-                  —
-                </td>
-                <td className="border border-gray-400 py-1 px-2 text-center text-[10px] font-bold">
-                  INITIAL
-                </td>
-                <td className="border border-gray-400 py-1 px-2 font-bold italic">
-                  Opening Balance (শুরুর পুরনো হিসাব)
-                </td>
-                <td className="border border-gray-400 py-1 px-2 text-right">
-                  {initialCharge > 0
-                    ? `৳${initialCharge.toLocaleString()}`
-                    : "—"}
-                </td>
-                <td className="border border-gray-400 py-1 px-2 text-right">
-                  {initialPayment > 0
-                    ? `৳${initialPayment.toLocaleString()}`
-                    : "—"}
-                </td>
-                <td className="border border-gray-400 py-1 px-2 text-right font-bold">
-                  {effectiveOpening < 0
-                    ? `- ৳${Math.abs(effectiveOpening).toLocaleString()}`
-                    : `+ ৳${effectiveOpening.toLocaleString()}`}
-                </td>
-              </tr>
-            )}
-            {rows.map((row, idx) => (
-              <tr key={idx} className="even:bg-gray-50 text-gray-800">
-                <td className="border border-gray-400 py-2 px-2 whitespace-nowrap">
+          <tbody className="divide-y divide-gray-100">
+            {" "}
+            {/* Rows are separated by very subtle lines */}
+            {rows?.map((row, idx) => (
+              <tr
+                key={idx}
+                // Zebra striping with extremely light gray for clarity
+                className={`${
+                  idx % 2 !== 0 ? "bg-[#f8f9fa]" : "bg-white"
+                } text-[#374151]`}
+              >
+                <td className="py-2.5 px-2 text-center whitespace-nowrap font-medium text-gray-600">
                   {fmtDate(row.date)}
                 </td>
-                <td className="border border-gray-400 py-2 px-2 font-bold">
+                <td className="py-2.5 px-2 text-center font-medium text-gray-600">
                   {row.displayOrderId || "—"}
                 </td>
-                <td className="border border-gray-400 py-2 px-2 text-center text-[10px] font-bold uppercase">
+                <td className="py-2.5 px-2 text-center text-[9px] font-medium text-gray-600 uppercase ">
                   {row.provider}
                 </td>
-                <td className="border border-gray-400 py-2 px-2">
-                  <div className="font-bold">{row.description}</div>
+                <td className="py-2.5 px-2 text-center">
+                  <div className="font-medium text-gray-600">
+                    {row.description}
+                  </div>
                   {row.colour && (
-                    <span className="text-[10px] text-gray-500 italic">
-                      Color: {row.colour}
-                    </span>
+                    <div className="text-[9px] mt-0.5">
+                      <span className="text-gray-400 italic">Color: </span>
+                      <span className="">{row.colour}</span>
+                    </div>
                   )}
                 </td>
-                <td className="border border-gray-400 py-2 px-2 text-right">
+                <td className="py-2.5 px-2 text-center font-medium text-gray-600 ">
                   {row.charge > 0 ? `৳${row.charge.toLocaleString()}` : "—"}
                 </td>
-                <td className="border border-gray-400 py-2 px-2 text-right">
+                <td className="py-2.5 px-2 text-center font-medium text-gray-600 ">
                   {row.payment > 0 ? `৳${row.payment.toLocaleString()}` : "—"}
                 </td>
-                <td className="border border-gray-400 py-2 px-2 text-right font-bold">
-                  {row.balance < 0
-                    ? `- ৳${Math.abs(row.balance).toLocaleString()}`
-                    : `+ ৳${row.balance.toLocaleString()}`}
+                <td
+                  className="py-2.5 px-2 text-center font-medium text-gray-600
+        "
+                >
+                  <span className="bg-gray-100/50 px-1.5 py-0.5 rounded">
+                    {row.balance < 0
+                      ? `- ৳${Math.abs(row.balance).toLocaleString()}`
+                      : `+ ৳${row.balance.toLocaleString()}`}
+                  </span>
                 </td>
               </tr>
             ))}
           </tbody>
-          <tfoot>
-            <tr className="bg-gray-100 font-bold text-sm">
-              <td
-                colSpan={4}
-                className="border border-gray-400 py-2 px-2 text-right"
-              >
-                Totals:
-              </td>
-              <td className="border border-gray-400 py-2 px-2 text-right text-red-600">
-                ৳{totalCharge.toLocaleString()}
-              </td>
-              <td className="border border-gray-400 py-2 px-2 text-right text-green-600">
-                ৳{totalPayment.toLocaleString()}
-              </td>
-              <td className="border border-gray-400 py-2 px-2 text-right">
-                {finalBalance < 0
-                  ? `- ৳${Math.abs(finalBalance).toLocaleString()}`
-                  : `+ ৳${finalBalance.toLocaleString()}`}
-              </td>
-            </tr>
-          </tfoot>
         </table>
 
         {/* SUMMARY */}
-        <div className="w-full flex justify-end text-sm">
-          <div className="w-[300px] border border-gray-400 p-2">
-            <div className="flex justify-between py-1 border-b">
-              <span>Total Billings (Charge):</span>
-              <span className="font-bold">৳{totalCharge.toLocaleString()}</span>
+        <div className="w-full flex justify-end text-[11px]">
+          <div className="w-[180px] border border-gray-300 p-1.5 leading-tight">
+            <div className="flex justify-between py-0.5 border-b">
+              <span>Total Billings:</span>
+              <span className="font-medium text-gray-600 ">
+                ৳{totalCharge.toLocaleString()}
+              </span>
             </div>
-            <div className="flex justify-between py-1 border-b">
-              <span>Total Received (Payment):</span>
-              <span className="font-bold">
+            <div className="flex justify-between py-0.5 border-b">
+              <span>Total Received:</span>
+              <span className="font-medium text-gray-600 ">
                 ৳{totalPayment.toLocaleString()}
               </span>
             </div>
-            <div className="flex justify-between py-1 mt-2 text-base font-black">
-              <span>Final Balance:</span>
-              <span
-                className={finalBalance < 0 ? "text-red-600" : "text-green-600"}
-              >
+            <div className="flex justify-between py-1  font-medium text-gray-600 ">
+              <span>Balance:</span>
+              <span className={finalBalance < 0 ? "-" : "+"}>
                 {finalBalance < 0
-                  ? `${Math.abs(finalBalance).toLocaleString()} (Due)`
-                  : `${finalBalance.toLocaleString()} (Adv)`}
+                  ? `- ${Math.abs(finalBalance).toLocaleString()} `
+                  : `${finalBalance.toLocaleString()} +`}
               </span>
             </div>
           </div>
         </div>
 
-        {/* Signatures */}
-        <div className="flex justify-between items-center text-xs mt-20">
-          <div
-            className="text-center pt-2"
-            style={{ width: "150px", borderTop: "1px solid black" }}
-          >
-            <p>গ্রাহকের স্বাক্ষর</p>
+        {/* Signatures - Line Opacity Reduced */}
+        <div className="flex justify-between items-center text-[10px] mt-16 print:mt-12">
+          <div className="text-center pt-1.5 w-[100px] border-t border-black/20">
+            {" "}
+            {}
+            <p className="font-medium text-gray-600">গ্রাহকের স্বাক্ষর</p>
           </div>
-          <div className="text-[10px] text-gray-500 font-medium uppercase mt-2">
+
+          <div className="text-[8px] text-gray-400 font-medium uppercase italic">
             Printed: {new Date().toLocaleString()}
           </div>
-          <div
-            className="text-center pt-2"
-            style={{ width: "150px", borderTop: "1px solid black" }}
-          >
-            <p>কর্তৃপক্ষের স্বাক্ষর</p>
+
+          <div className="text-center pt-1.5 w-[130px] border-t border-black/20">
+            {" "}
+            {}
+            <p className="font-medium text-gray-600">কর্তৃপক্ষের স্বাক্ষর</p>
           </div>
         </div>
       </div>
