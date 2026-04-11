@@ -219,12 +219,13 @@ export default function BillingBatch({ orderId }) {
         total: Number(billing.total),
         totalQty: Number(totalQty),
         batchName: batch.batchName,
+
+        clotheType: batch.clotheType || orderInfo?.clotheType || "",
         colour: batch.colour,
+        quality: batch.quality || orderInfo?.quality || "",
         sillName: batch.sillName,
         finishingType: batch.finishingType,
-
         customerId: batch.customerId,
-
         dyeing: batch.dyeing,
         dyeingId: batch.dyeingId,
 
@@ -258,7 +259,6 @@ export default function BillingBatch({ orderId }) {
   if (loading) return <p>Loading billing invoices...</p>;
   if (!invoices.length)
     return <p className="text-gray-500">No invoice billing data found.</p>;
-
 
   return (
     <div className="mt-6 space-y-6">

@@ -11,7 +11,7 @@ export async function POST(req) {
 
     return Response.json({ success: true, data: summary }, { status: 201 });
   } catch (error) {
-    // 🔐 Duplicate key error
+    // 🔐 Duplicate key error 
     if (error.code === 11000) {
       return Response.json(
         { success: false, error: "Already saved" },
