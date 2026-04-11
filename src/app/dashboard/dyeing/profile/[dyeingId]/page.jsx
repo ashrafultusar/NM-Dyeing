@@ -81,7 +81,14 @@ export default function DyeingProfileLedger({ params }) {
   const handleSaveSelected = async (title, saveMode) => {
     if (!selectedRows.length) return;
 
-    let payloadRecords = [...selectedRows];
+    let payloadRecords = selectedRows.map(row => ({
+      ...row,
+      clothType: row.clothType || "—",
+      quality: row.quality || "—",
+      colour: row.colour || "—",
+      sillName: row.sillName || "—",
+      finishingType: row.finishingType || "—",
+    }));
 
     if (saveMode === "ledger") {
       try {
@@ -125,7 +132,12 @@ export default function DyeingProfileLedger({ params }) {
               payment: isCharge ? 0 : prevDueAmt,
               provider: "SYSTEM",
               type: isCharge ? "debit" : "credit",
-              companyName: dyeing?.name || "—"
+              companyName: dyeing?.name || "—",
+              clothType: "—",
+              quality: "—",
+              colour: "—",
+              sillName: "—",
+              finishingType: "—",
             });
           }
         } else {
@@ -137,7 +149,12 @@ export default function DyeingProfileLedger({ params }) {
               payment: initialPayment > 0 ? initialPayment : 0,
               provider: "SYSTEM",
               type: initialCharge > 0 ? "debit" : "credit",
-              companyName: dyeing?.name || "—"
+              companyName: dyeing?.name || "—",
+              clothType: "—",
+              quality: "—",
+              colour: "—",
+              sillName: "—",
+              finishingType: "—",
             });
           }
         }
@@ -336,6 +353,7 @@ export default function DyeingProfileLedger({ params }) {
                   selectedView={selectedView}
                   availableRows={isCurrentView ? currentLedger.filter(r => !r.isSaved && r.recordId) : []}
                   onInvoiceUpdated={fetchCurrentLedger}
+                  companyAddress={dyeing?.location}
                 />
               )}
             </div>

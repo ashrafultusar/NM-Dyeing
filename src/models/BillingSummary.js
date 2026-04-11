@@ -22,9 +22,11 @@ const BillingSummarySchema = new mongoose.Schema(
     totalQty: { type: Number, required: true },
     batchName: { type: String, required: true },
 
-    colour: String,
-    sillName: String,
-    finishingType: String,
+    clotheType: { type: String }, 
+    quality: { type: String },
+    colour: { type: String },
+    sillName: { type: String },
+    finishingType: { type: String },
 
     customerId: {
       type: mongoose.Schema.Types.ObjectId,

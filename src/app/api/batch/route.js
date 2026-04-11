@@ -2,7 +2,6 @@ import connectDB from "@/lib/db";
 import Batch from "@/models/Batch";
 import { NextResponse } from "next/server";
 
-
 export async function POST(req) {
   await connectDB();
 
@@ -12,7 +11,9 @@ export async function POST(req) {
     const {
       orderId,
       colour,
+      quality,
       sillName,
+      clotheType,
       finishingType,
       dyeing,
       calender,
@@ -44,16 +45,17 @@ export async function POST(req) {
       batchName: "Batch 1",
       status: "pending",
       colour,
+      quality,
       sillName,
+      clotheType,
       finishingType,
       dyeing,
       calender: calender || null,
-      
+
       customerId: customerId || null,
       dyeingId: dyeingId || null,
       calenderId: calenderId || null,
-      
-      
+
       rows,
       selectedProcesses,
     };
@@ -87,7 +89,6 @@ export async function POST(req) {
     return NextResponse.json({ message: error.message }, { status: 500 });
   }
 }
- 
 
 // ✅ UPDATE (note, inputs, status change etc.)
 export async function PATCH(req) {

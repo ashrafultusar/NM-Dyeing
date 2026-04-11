@@ -33,7 +33,9 @@ const batchSchema = new mongoose.Schema(
         ],
 
         colour: { type: String, required: true },
+        quality: { type: String },
         sillName: { type: String, required: true },
+        clotheType: { type: String },
         finishingType: { type: String, required: true },
         dyeing: { type: String, required: true },
         calender: { type: String },

@@ -10,6 +10,7 @@ export function buildLedger(billings, payments, openingBalance = 0, initialCharg
             companyName: b.companyName || "Unknown",
             description: `Invoice: ${b.invoiceNumber}`,
             qty: b.totalQty, price: b.price, charge: b.total, payment: 0, type: "debit", colour: b.colour,
+            clothType: b.clotheType || b.clothType, quality: b.quality, sillName: b.sillName, finishingType: b.finishingType,
             recordId: b._id, modelType: "BillingSummary", isSaved: savedRecordIds.includes(b._id.toString()),
         })),
         ...payments.map((p) => ({
