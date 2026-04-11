@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { fmtDate } from "./ledgerUtils";
 import SavedInvoicePrint from "@/components/Print/ledger/SavedInvoicePrint";
 
-function CalenderSavedBillsTab({ calenderId, selectedView, availableRows, onInvoiceUpdated }) {
+function CalenderSavedBillsTab({ calenderId, selectedView, availableRows, onInvoiceUpdated, companyAddress }) {
     const [invoices, setInvoices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [expandedId, setExpandedId] = useState(null);
@@ -391,7 +391,7 @@ function CalenderSavedBillsTab({ calenderId, selectedView, availableRows, onInvo
 
             <div style={{ display: "none" }}>
                 <div ref={printRef}>
-                    <SavedInvoicePrint invoice={printingInvoice} />
+                    <SavedInvoicePrint invoice={printingInvoice} companyAddress={companyAddress} />
                 </div>
             </div>
         </div>
