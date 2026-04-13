@@ -98,7 +98,7 @@ export default function DyeingSavedBills({ params }) {
                                                 {inv.orderIds?.length > 0 && `| Orders: ${inv.orderIds.join(", ")}`}
                                             </p>
                                             <p className="text-[10px] text-gray-400 mt-1 uppercase tracking-wider">
-                                                Saved On: {fmtDate(inv.createdAt)}
+                                                 {fmtDate(inv.createdAt)}
                                             </p>
                                         </div>
                                         <div className="flex items-center gap-4">

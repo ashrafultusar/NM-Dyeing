@@ -152,6 +152,8 @@ export default function CustomerProfileLedger({ params }) {
 
         let bal = 0;
         let foundBalance = false;
+        let prevInvoiceDesc = "";
+        let prevInvoiceDate = null;
 
         if (savedInvoices.length > 0) {
           const sortedInvoices = savedInvoices.sort(
@@ -166,6 +168,8 @@ export default function CustomerProfileLedger({ params }) {
             if (recordWithBalance) {
               bal = recordWithBalance.balance;
               foundBalance = true;
+              prevInvoiceDesc = ` (${lastInvoice.invoiceNumber} — ${lastInvoice.title || "Invoice"})`;
+              prevInvoiceDate = lastInvoice.createdAt;
             }
           }
         }
@@ -184,10 +188,11 @@ export default function CustomerProfileLedger({ params }) {
 
           if (prevDueAmt > 0) {
             payloadRecords.unshift({
-              date: new Date().toISOString(),
-              description: isCharge
-                ? "Previous Due"
-                : "Previous Ledger Balance (Payment)",
+              date: prevInvoiceDate || new Date().toISOString(),
+              description:
+                (isCharge
+                  ? "Previous Due"
+                  : "Previous Ledger Balance (Payment)") + prevInvoiceDesc,
               charge: isCharge ? prevDueAmt : 0,
               payment: isCharge ? 0 : prevDueAmt,
               provider: "SYSTEM",

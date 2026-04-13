@@ -16,9 +16,10 @@ export default function SavedInvoicePrint({ invoice, companyAddress }) {
   const previousDueRecord = records.find(
     (r) =>
       r.displayOrderId === "Previous Due" ||
-      r.description === "Previous Due" ||
       r.clothType === "Previous Due" ||
-      r.quality === "Previous Due"
+      r.quality === "Previous Due" ||
+      (r.description && r.description.startsWith("Previous Due")) ||
+      (r.description && r.description.startsWith("Previous Ledger Balance"))
   );
   const previousDue = previousDueRecord ? previousDueRecord.charge || 0 : 0;
 
@@ -176,16 +177,27 @@ export default function SavedInvoicePrint({ invoice, companyAddress }) {
             {records.map((row, idx) => {
               const isDueRow =
                 row.displayOrderId === "Previous Due" ||
-                row.description === "Previous Due" ||
                 row.clothType === "Previous Due" ||
-                row.quality === "Previous Due";
+                row.quality === "Previous Due" ||
+                (row.description && row.description.startsWith("Previous Due")) ||
+                (row.description && row.description.startsWith("Previous Ledger Balance"));
+
+              let dueLabel = row.description;
+              let dueId = "—";
+
+              if (isDueRow && row.description) {
+                const parenIndex = row.description.indexOf("(");
+                if (parenIndex !== -1) {
+                  dueLabel = row.description.substring(0, parenIndex).trim();
+                  dueId = row.description.substring(parenIndex).trim();
+                }
+              }
 
               return (
                 <tr
                   key={idx}
-                  className={`${
-                    idx % 2 !== 0 ? "bg-[#f8f9fa]" : "bg-white"
-                  } text-[#374151]`}
+                  className={`${idx % 2 !== 0 ? "bg-[#f8f9fa]" : "bg-white"
+                    } text-[#374151]`}
                 >
                   <td className="py-2.5 px-2 text-center whitespace-nowrap font-medium text-gray-600">
                     {fmtDate(row.date)}
@@ -193,13 +205,19 @@ export default function SavedInvoicePrint({ invoice, companyAddress }) {
 
                   {/* ID Section - Invoice (Upore) & OrderID (Niche small) */}
                   <td className="py-2.5 px-2 text-center font-medium text-gray-600 leading-tight">
-                    <div className="text-[8px] text-gray-400 font-normal">
-                      {invoice.invoiceNumber || "—"}
-                    </div>
-                    {!isDueRow && (
-                      <div className="text-[8px] text-gray-400 font-normal">
-                        {row.displayOrderId || "—"}
+                    {isDueRow ? (
+                      <div className="text-[8px] text-gray-400  whitespace-nowrap">
+                        {dueId !== "—" ? dueId : invoice.invoiceNumber || "—"}
                       </div>
+                    ) : (
+                      <>
+                        <div className="text-[8px] text-gray-400 font-normal">
+                          {invoice.invoiceNumber || "—"}
+                        </div>
+                        <div className="text-[8px] text-gray-400 font-normal">
+                          {row.displayOrderId || "—"}
+                        </div>
+                      </>
                     )}
                   </td>
 
@@ -209,7 +227,11 @@ export default function SavedInvoicePrint({ invoice, companyAddress }) {
 
                   {/* Description Section - 2 Lines */}
                   <td className="py-2.5 px-2 text-center leading-tight">
-                    {!isDueRow && (
+                    {isDueRow ? (
+                      <div className="text-[10px] text-gray-600 font-bold">
+                       
+                      </div>
+                    ) : (
                       <>
                         {/* Top Line: Quality & ClothType */}
                         <div className="text-[8px] text-gray-400 font-normal">
