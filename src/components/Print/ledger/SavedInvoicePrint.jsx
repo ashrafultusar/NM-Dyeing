@@ -13,7 +13,18 @@ export default function SavedInvoicePrint({ invoice, companyAddress }) {
 
   const records = invoice.records || [];
 
+  const previousDueRecord = records.find(
+    (r) =>
+      r.displayOrderId === "Previous Due" ||
+      r.description === "Previous Due" ||
+      r.clothType === "Previous Due" ||
+      r.quality === "Previous Due"
+  );
+  const previousDue = previousDueRecord ? previousDueRecord.charge || 0 : 0;
+
   const totalCharge = invoice.totalCharge || 0;
+
+  const totalRecentBill = totalCharge - previousDue;
 
   const totalPayment = invoice.totalPayment || 0;
 
@@ -162,71 +173,102 @@ export default function SavedInvoicePrint({ invoice, companyAddress }) {
           </thead>
 
           <tbody className="divide-y divide-gray-100">
-            {records.map((row, idx) => (
-              <tr
-                key={idx}
-                className={`${
-                  idx % 2 !== 0 ? "bg-[#f8f9fa]" : "bg-white"
-                } text-[#374151]`}
-              >
-                <td className="py-2.5 px-2 text-center whitespace-nowrap font-medium text-gray-600">
-                  {fmtDate(row.date)}
-                </td>
+            {records.map((row, idx) => {
+              const isDueRow =
+                row.displayOrderId === "Previous Due" ||
+                row.description === "Previous Due" ||
+                row.clothType === "Previous Due" ||
+                row.quality === "Previous Due";
 
-                {/* ID Section - Invoice (Upore) & OrderID (Niche small) */}
-                <td className="py-2.5 px-2 text-center font-medium text-gray-600 leading-tight">
-                  <div>{invoice.invoiceNumber || "—"}</div>
-                  <div className="text-[8px] text-gray-400 font-normal">
-                    ID: {row.displayOrderId || "—"}
-                  </div>
-                </td>
+              return (
+                <tr
+                  key={idx}
+                  className={`${
+                    idx % 2 !== 0 ? "bg-[#f8f9fa]" : "bg-white"
+                  } text-[#374151]`}
+                >
+                  <td className="py-2.5 px-2 text-center whitespace-nowrap font-medium text-gray-600">
+                    {fmtDate(row.date)}
+                  </td>
 
-                <td className="py-2.5 px-2 text-center text-[9px] font-medium text-gray-600 uppercase">
-                  {row.provider}
-                </td>
+                  {/* ID Section - Invoice (Upore) & OrderID (Niche small) */}
+                  <td className="py-2.5 px-2 text-center font-medium text-gray-600 leading-tight">
+                    <div className="text-[8px] text-gray-400 font-normal">
+                      {invoice.invoiceNumber || "—"}
+                    </div>
+                    {!isDueRow && (
+                      <div className="text-[8px] text-gray-400 font-normal">
+                        {row.displayOrderId || "—"}
+                      </div>
+                    )}
+                  </td>
 
-                {/* Description Section - 2 Lines */}
-                <td className="py-2.5 px-2 text-center leading-tight">
-                  {/* Top Line: Quality & ClothType */}
-                  <div className="font-medium text-gray-600">
-                    Quality:
-                    {row.quality || ""} / Cloth Type:
-                    {row.clothType || row.description}`
-                  </div>
-                  {/* Bottom Line: Small details */}
-                  <div className="text-[8px] text-gray-400 font-normal italic">
-                    {row.colour} {row.sillName && `| ${row.sillName}`}{" "}
-                    {row.finishingType && `| ${row.finishingType}`}
-                  </div>
-                </td>
+                  <td className="py-2.5 px-2 text-center text-[9px] font-medium text-gray-600 uppercase">
+                    {row.provider}
+                  </td>
 
-                <td className="py-2.5 px-2 text-center font-medium text-gray-600">
-                  {row.charge > 0 ? (
-                    row.qty && row.price ? (
-                      <span className="text-[8px]">
-                        ({row.qty}×{row.price})=৳{row.charge.toLocaleString()}
-                      </span>
+                  {/* Description Section - 2 Lines */}
+                  <td className="py-2.5 px-2 text-center leading-tight">
+                    {!isDueRow && (
+                      <>
+                        {/* Top Line: Quality & ClothType */}
+                        <div className="text-[8px] text-gray-400 font-normal">
+                          {row.clothType || row.description}{" "}
+                          {row.quality ? `/ ${row.quality}` : ""}
+                        </div>
+                        {/* Bottom Line: Small details */}
+                        <div className="text-[8px] text-gray-400 font-normal">
+                          {[row.finishingType, row.sillName, row.colour]
+                            .filter(Boolean)
+                            .join(" / ")}
+                        </div>
+                      </>
+                    )}
+                  </td>
+
+                  <td className="py-2.5 px-2 text-center font-medium text-gray-600">
+                    {row.charge > 0 ? (
+                      row.qty && row.price && !isDueRow ? (
+                        <span className="text-[8px]">
+                          ({row.qty}×{row.price})=৳{row.charge.toLocaleString()}
+                        </span>
+                      ) : (
+                        `৳${row.charge.toLocaleString()}`
+                      )
                     ) : (
-                      `৳${row.charge.toLocaleString()}`
-                    )
-                  ) : (
-                    "—"
-                  )}
-                </td>
+                      "—"
+                    )}
+                  </td>
 
-                <td className="py-2.5 px-2 text-center font-medium text-gray-600">
-                  {row.payment > 0 ? `৳${row.payment.toLocaleString()}` : "—"}
-                </td>
-              </tr>
-            ))}
+                  <td className="py-2.5 px-2 text-center font-medium text-gray-600">
+                    {row.payment > 0 ? `৳${row.payment.toLocaleString()}` : "—"}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
 
         <div className="w-full flex justify-end text-[11px]">
           <div className="w-[180px] border border-gray-300 p-1.5 leading-tight">
             <div className="flex justify-between py-0.5 border-b">
-              <span>Total Billing:</span>
+              <span>Sub Total:</span>
+              <span className="font-medium text-gray-600">
+                ৳{totalRecentBill.toLocaleString()}
+              </span>
+            </div>
 
+            {previousDue > 0 && (
+              <div className="flex justify-between py-0.5 border-b">
+                <span>Due:</span>
+                <span className="font-medium text-gray-600">
+                  ৳{previousDue.toLocaleString()}
+                </span>
+              </div>
+            )}
+
+            <div className="flex justify-between py-0.5 border-b">
+              <span>Total Bill:</span>
               <span className="font-medium text-gray-600">
                 ৳{totalCharge.toLocaleString()}
               </span>
@@ -234,7 +276,6 @@ export default function SavedInvoicePrint({ invoice, companyAddress }) {
 
             <div className="flex justify-between py-0.5 border-b">
               <span>Total Received:</span>
-
               <span className="font-medium text-gray-600">
                 ৳{totalPayment.toLocaleString()}
               </span>
@@ -242,7 +283,6 @@ export default function SavedInvoicePrint({ invoice, companyAddress }) {
 
             <div className="flex justify-between py-1 font-bold text-gray-600">
               <span>Balance:</span>
-
               <span>
                 {netDue < 0
                   ? `+ ৳${Math.abs(netDue).toLocaleString()}`
