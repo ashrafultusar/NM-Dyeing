@@ -5,7 +5,7 @@ export function buildLedger(billings, payments, openingBalance = 0, initialCharg
     }
     const combined = [
         ...billings.map((b) => ({
-            date: b.createdAt, provider: "DYEING BILL",
+            date: b.createdAt, createdAt: b.createdAt, provider: "DYEING BILL",
             displayOrderId: b.displayOrderId || "N/A",
             companyName: b.companyName || "Unknown",
             description: `Invoice: ${b.invoiceNumber}`,
@@ -14,13 +14,13 @@ export function buildLedger(billings, payments, openingBalance = 0, initialCharg
             recordId: b._id, modelType: "BillingSummary", isSaved: savedRecordIds.includes(b._id.toString()),
         })),
         ...payments.map((p) => ({
-            date: p.date, provider: p.method.toUpperCase(),
+            date: p.date, createdAt: p.createdAt, provider: p.method.toUpperCase(),
             description: p.description || "Payment Received",
             charge: 0, payment: p.amount, type: "credit",
             recordId: p._id, modelType: "Payment", isSaved: savedRecordIds.includes(p._id.toString()),
         })),
     ];
-    combined.sort((a, b) => new Date(a.date) - new Date(b.date));
+    combined.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
     let bal = startBal;
     return combined.map((item) => { bal += item.payment - item.charge; return { ...item, balance: bal }; });
 }

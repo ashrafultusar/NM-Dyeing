@@ -28,14 +28,14 @@ export default function Page() {
   useEffect(() => {
     const fetchEntities = async () => {
       try {
-        let endpoint = "/api/customers"; 
+        let endpoint = "/api/customers";
         if (type === "dyeing") endpoint = "/api/dyeings";
         if (type === "calendar") endpoint = "/api/calender";
 
         const res = await fetch(endpoint);
         const data = await res.json();
         setEntities(Array.isArray(data) ? data : []);
-        setSelectedId(""); 
+        setSelectedId("");
         setPayments([]);
         setTotal(0);
       } catch (err) {
@@ -49,7 +49,7 @@ export default function Page() {
   const fetchPayments = async () => {
     if (!selectedId) return;
     try {
-      
+
       const res = await fetch(
         `/api/payments?userId=${selectedId}&type=${type}`
       );
@@ -154,11 +154,10 @@ export default function Page() {
           <button
             key={tab.id}
             onClick={() => setType(tab.id)}
-            className={`flex-1 flex items-center justify-center cursor-pointer gap-2 py-2.5 rounded-lg font-bold transition-all ${
-              type === tab.id
+            className={`flex-1 flex items-center justify-center cursor-pointer gap-2 py-2.5 rounded-lg font-bold transition-all ${type === tab.id
                 ? "bg-white text-blue-600 shadow-md"
                 : "text-gray-500 hover:text-gray-700"
-            }`}
+              }`}
           >
             {tab.icon} {tab.label}
           </button>
@@ -177,11 +176,10 @@ export default function Page() {
             }
           >
             {currentSelection
-              ? `${currentSelection.companyName || currentSelection.name} ${
-                  currentSelection.ownerName
-                    ? `(${currentSelection.ownerName})`
-                    : ""
-                }`
+              ? `${currentSelection.companyName || currentSelection.name} ${currentSelection.ownerName
+                ? `(${currentSelection.ownerName})`
+                : ""
+              }`
               : `Select ${type}...`}
           </span>
           <span>{isDropdownOpen ? "▲" : "▼"}</span>
@@ -271,6 +269,7 @@ export default function Page() {
                 <option value="bank">Bank</option>
                 <option value="bkash">Bkash</option>
                 <option value="nagad">Nagad</option>
+                <option value="check">Check</option>
               </select>
             </div>
             <div className="space-y-1">
@@ -303,11 +302,10 @@ export default function Page() {
             <div className="md:col-span-2 flex gap-3">
               <button
                 type="submit"
-                className={`flex-1 cursor-pointer py-3 rounded-xl font-bold text-white shadow-lg transition-all ${
-                  form.id
+                className={`flex-1 cursor-pointer py-3 rounded-xl font-bold text-white shadow-lg transition-all ${form.id
                     ? "bg-orange-500 hover:bg-orange-600"
                     : "bg-blue-600 hover:bg-blue-700"
-                }`}
+                  }`}
               >
                 {form.id ? "Update Entry" : "Save Payment"}
               </button>

@@ -94,7 +94,7 @@ export default function SavedInvoicePrint({ invoice, companyAddress }) {
                 className="object-contain"
               />
 
-              <h1 className="text-lg font-bold opacity-75 text-center leading-tight">
+              <h1 className="text-lg  text-center leading-tight">
                 মেসার্স এম.এন ডাইং এন্ড ফিনিশিং এজেন্ট
               </h1>
             </div>
@@ -104,7 +104,7 @@ export default function SavedInvoicePrint({ invoice, companyAddress }) {
             </p>
 
             <p className="flex items-center justify-center gap-2 text-[11px]">
-              <span className="font-semibold opacity-80">Phone:</span>
+              <span className=" opacity-80">Phone:</span>
 
               <span>01711201870, 01782155151</span>
 
@@ -127,14 +127,14 @@ export default function SavedInvoicePrint({ invoice, companyAddress }) {
           <div className="space-y-0">
             <p className=" p-0">
               Company:{" "}
-              <span className="font-medium opacity-80">
+              <span className=" ">
                 {invoice.companyName || "—"}
               </span>
             </p>
             {companyAddress && (
               <p className="p-0">
                 Address:{" "}
-                <span className="font-medium opacity-80">{companyAddress}</span>
+                <span className="">{companyAddress}</span>
               </p>
             )}
           </div>
@@ -142,19 +142,19 @@ export default function SavedInvoicePrint({ invoice, companyAddress }) {
           <div className="text-right">
             <p>
               Invoice No:{" "}
-              <span className="font-medium opacity-80">
+              <span className="">
                 {invoice.invoiceNumber || "—"}
               </span>
             </p>
 
             <p>
               Date:{" "}
-              <span className=" opacity-80">
+              <span className=" ">
                 {invoice.createdAt ? fmtDate(invoice.createdAt) : "—"}
               </span>
             </p>
 
-            <p className="text-[8px] font-medium opacity-80">
+            <p className="text-[8px] ">
               Printed: {new Date().toLocaleString()}
             </p>
           </div>
@@ -163,13 +163,13 @@ export default function SavedInvoicePrint({ invoice, companyAddress }) {
         {/* TABLE - Zebra Striped & Clean Lines */}
         <table className="w-full text-[10px] mb-4 border-collapse">
           <thead>
-            <tr className="text-gray-600 border-b-[0.5px] border-gray-300">
-              <th className="py-2 px-2 text-center font-bold">Date</th>
-              <th className="py-2 px-2 text-center font-bold">ID / Invoice</th>
-              <th className="py-2 px-2 text-center font-bold">Method</th>
-              <th className="py-2 px-2 text-center font-bold">Description</th>
-              <th className="py-2 px-2 text-center font-bold">Charge (+)</th>
-              <th className="py-2 px-2 text-center font-bold">Payment (-)</th>
+            <tr className=" border-b-[0.5px] border-gray-300">
+              <th className="py-2 px-2 text-center ">Date</th>
+              <th className="py-2 px-2 text-center ">ID / Invoice</th>
+              <th className="py-2 px-2 text-center ">Method</th>
+              <th className="py-2 px-2 text-center ">Description</th>
+              <th className="py-2 px-2 text-center ">Charge (+)</th>
+              <th className="py-2 px-2 text-center ">Payment (-)</th>
             </tr>
           </thead>
 
@@ -179,8 +179,10 @@ export default function SavedInvoicePrint({ invoice, companyAddress }) {
                 row.displayOrderId === "Previous Due" ||
                 row.clothType === "Previous Due" ||
                 row.quality === "Previous Due" ||
-                (row.description && row.description.startsWith("Previous Due")) ||
-                (row.description && row.description.startsWith("Previous Ledger Balance"));
+                (row.description &&
+                  row.description.startsWith("Previous Due")) ||
+                (row.description &&
+                  row.description.startsWith("Previous Ledger Balance"));
 
               let dueLabel = row.description;
               let dueId = "—";
@@ -196,50 +198,49 @@ export default function SavedInvoicePrint({ invoice, companyAddress }) {
               return (
                 <tr
                   key={idx}
-                  className={`${idx % 2 !== 0 ? "bg-[#f8f9fa]" : "bg-white"
-                    } text-[#374151]`}
+                  className={`${
+                    idx % 2 !== 0 ? "bg-[#f8f9fa]" : "bg-white"
+                  } `}
                 >
-                  <td className="py-2.5 px-2 text-center whitespace-nowrap font-medium text-gray-600">
+                  <td className="py-2.5 px-2 text-center whitespace-nowrap ">
                     {fmtDate(row.date)}
                   </td>
 
                   {/* ID Section - Invoice (Upore) & OrderID (Niche small) */}
-                  <td className="py-2.5 px-2 text-center font-medium text-gray-600 leading-tight">
+                  <td className="py-2.5 px-2 text-center ">
                     {isDueRow ? (
-                      <div className="text-[8px] text-gray-400  whitespace-nowrap">
+                      <div className="text-[8px]   whitespace-nowrap">
                         {dueId !== "—" ? dueId : invoice.invoiceNumber || "—"}
                       </div>
                     ) : (
                       <>
-                        <div className="text-[8px] text-gray-400 font-normal">
+                        <div className="text-[8px] ">
                           {invoice.invoiceNumber || "—"}
                         </div>
-                        <div className="text-[8px] text-gray-400 font-normal">
+                        <div className="text-[8px] ">
                           {row.displayOrderId || "—"}
                         </div>
                       </>
                     )}
                   </td>
 
-                  <td className="py-2.5 px-2 text-center text-[9px] font-medium text-gray-600 uppercase">
+                  <td className="py-2.5 px-2 text-center text-[9px] ">
                     {row.provider}
                   </td>
 
                   {/* Description Section - 2 Lines */}
                   <td className="py-2.5 px-2 text-center leading-tight">
                     {isDueRow ? (
-                      <div className="text-[10px] text-gray-600 font-bold">
-                       
-                      </div>
+                      <div className="text-[10px] "></div>
                     ) : (
                       <>
                         {/* Top Line: Quality & ClothType */}
-                        <div className="text-[8px] text-gray-400 font-normal">
+                        <div className="text-[8px] ">
                           {row.clothType || row.description}{" "}
                           {row.quality ? `/ ${row.quality}` : ""}
                         </div>
                         {/* Bottom Line: Small details */}
-                        <div className="text-[8px] text-gray-400 font-normal">
+                        <div className="text-[8px] ">
                           {[row.finishingType, row.sillName, row.colour]
                             .filter(Boolean)
                             .join(" / ")}
@@ -248,7 +249,7 @@ export default function SavedInvoicePrint({ invoice, companyAddress }) {
                     )}
                   </td>
 
-                  <td className="py-2.5 px-2 text-center font-medium text-gray-600">
+                  <td className="py-2.5 px-2 text-center ">
                     {row.charge > 0 ? (
                       row.qty && row.price && !isDueRow ? (
                         <span className="text-[8px]">
@@ -262,7 +263,7 @@ export default function SavedInvoicePrint({ invoice, companyAddress }) {
                     )}
                   </td>
 
-                  <td className="py-2.5 px-2 text-center font-medium text-gray-600">
+                  <td className="py-2.5 px-2 text-center ">
                     {row.payment > 0 ? `৳${row.payment.toLocaleString()}` : "—"}
                   </td>
                 </tr>
@@ -272,10 +273,10 @@ export default function SavedInvoicePrint({ invoice, companyAddress }) {
         </table>
 
         <div className="w-full flex justify-end text-[11px]">
-          <div className="w-[180px] border border-gray-300 p-1.5 leading-tight">
+          <div className="w-[180px] border border-gray-400 p-1.5 leading-tight">
             <div className="flex justify-between py-0.5 border-b">
               <span>Sub Total:</span>
-              <span className="font-medium text-gray-600">
+              <span className=" ">
                 ৳{totalRecentBill.toLocaleString()}
               </span>
             </div>
@@ -283,7 +284,7 @@ export default function SavedInvoicePrint({ invoice, companyAddress }) {
             {previousDue > 0 && (
               <div className="flex justify-between py-0.5 border-b">
                 <span>Due:</span>
-                <span className="font-medium text-gray-600">
+                <span className="">
                   ৳{previousDue.toLocaleString()}
                 </span>
               </div>
@@ -291,19 +292,19 @@ export default function SavedInvoicePrint({ invoice, companyAddress }) {
 
             <div className="flex justify-between py-0.5 border-b">
               <span>Total Bill:</span>
-              <span className="font-medium text-gray-600">
+              <span className="">
                 ৳{totalCharge.toLocaleString()}
               </span>
             </div>
 
             <div className="flex justify-between py-0.5 border-b">
               <span>Total Received:</span>
-              <span className="font-medium text-gray-600">
+              <span className=" ">
                 ৳{totalPayment.toLocaleString()}
               </span>
             </div>
 
-            <div className="flex justify-between py-1 font-bold text-gray-600">
+            <div className="flex justify-between py-1 ">
               <span>Balance:</span>
               <span>
                 {netDue < 0
@@ -318,11 +319,11 @@ export default function SavedInvoicePrint({ invoice, companyAddress }) {
 
         <div className="flex justify-between items-center text-[10px] mt-16 print:mt-12">
           <div className="text-center pt-1.5 w-[100px] border-t border-black/20">
-            <p className="font-medium text-gray-600">গ্রাহকের স্বাক্ষর</p>
+            <p className="font-medium ">গ্রাহকের স্বাক্ষর</p>
           </div>
 
           <div className="text-center pt-1.5 w-[130px] border-t border-black/20">
-            <p className="font-medium text-gray-600">কর্তৃপক্ষের স্বাক্ষর</p>
+            <p className="font-medium ">কর্তৃপক্ষের স্বাক্ষর</p>
           </div>
         </div>
       </div>

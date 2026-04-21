@@ -16,6 +16,7 @@ export function buildLedger(
             .filter((b) => b.summaryType === "client")
             .map((b) => ({
                 date: b.createdAt,
+                createdAt: b.createdAt,
                 provider: "BILLING",
                 displayOrderId: b.displayOrderId || "N/A",
                 companyName: b.companyName || "Unknown",
@@ -36,6 +37,7 @@ export function buildLedger(
             })),
         ...payments.map((p) => ({
             date: p.date,
+            createdAt: p.createdAt,
             provider: p.method.toUpperCase(),
             description: p.description || "Payment Received",
             charge: 0,
@@ -46,7 +48,7 @@ export function buildLedger(
             isSaved: savedRecordIds.includes(p._id.toString()),
         })),
     ];
-    combined.sort((a, b) => new Date(a.date) - new Date(b.date));
+    combined.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
     let bal = startBal;
     return combined.map((item) => {
         bal += item.payment - item.charge;
