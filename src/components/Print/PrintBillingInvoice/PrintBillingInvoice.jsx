@@ -29,13 +29,13 @@ export default function PrintBillingInvoice({ order }) {
 
         const totalGoj = idxValue + extras.reduce((s, v) => s + v, 0);
         const rollCount = 1 + extras.length;
-        
+
         // MODIFIED LOGIC: Return the calculated row info
         return { goj: totalGoj, rollCount };
       }) || [];
 
     grandTotalFinishGoj += finishingRows.reduce((s, r) => s + r.goj, 0);
-    
+
     // MODIFIED LOGIC HERE: Only count rolls where total 'goj' > 0
     grandTotalFinishRolls += finishingRows.reduce((s, r) => {
       // যদি 'goj' 0 এর বেশি হয় তবেই rollCount যোগ হবে
@@ -54,38 +54,46 @@ export default function PrintBillingInvoice({ order }) {
         boxSizing: "border-box",
       }}
     >
-       {/* header */}
-     <div className="border-b-2 border-black pb-3 mb-4">
-       <div className="flex flex-col items-center">
-         {/* LOGO + TITLE */}
-         <div className="flex items-center gap-3 justify-center">
-          <Image
-                       src="/Image/logo.png"
-                       alt="Company Logo"
-                       width={60}
-                       height={60}
-                       priority unoptimized   
-                       loading="eager"
-                       className="object-contain"
-                     />
-           <h1 className="text-2xl font-bold text-center -mb-3"> 
-             মেসার্স এম.এন ডাইং এন্ড ফিনিশিং এজেন্ট
-           </h1>
-         </div>
-     
-         <p className="text-sm text-center">ঠিকানা: মাধবদী, নরসিংদী</p>
-     
-         {/* Phone Line */}
-         <p className="flex items-center justify-center gap-2 text-base whitespace-nowrap">
-           <span>Phone:</span>
-           <span>01711201870</span>
-           <span>01782155151</span>
-           <IoLogoWhatsapp className="text-green-600 text-xl" />
-          <Image src="/Image/bkash.png" width={18} unoptimized    height={18} alt="bKash"  priority
-            loading="eager"/>
-         </p>
-       </div>
-     </div>
+      {/* header */}
+      <div className="border-b-2 border-black pb-3 mb-4">
+        <div className="flex flex-col items-center">
+          {/* LOGO + TITLE */}
+          <div className="flex items-center gap-3 justify-center">
+            <Image
+              src="/Image/logo.png"
+              alt="Company Logo"
+              width={60}
+              height={60}
+              priority
+              unoptimized
+              loading="eager"
+              className="object-contain"
+            />
+            <h1 className="text-2xl text-center -mb-3">
+              মেসার্স এম.এন ডাইং এন্ড ফিনিশিং এজেন্ট
+            </h1>
+          </div>
+
+          <p className="text-sm text-center">ঠিকানা: মাধবদী, নরসিংদী</p>
+
+          {/* Phone Line */}
+          <p className="flex items-center justify-center gap-2 text-base whitespace-nowrap">
+            <span>Phone:</span>
+            <span>01711201870</span>
+            <span>01782155151</span>
+            <IoLogoWhatsapp className="text-green-600 text-xl" />
+            <Image
+              src="/Image/bkash.png"
+              width={18}
+              unoptimized
+              height={18}
+              alt="bKash"
+              priority
+              loading="eager"
+            />
+          </p>
+        </div>
+      </div>
 
       {/* Order Info */}
       <div className="grid grid-cols-3 text-sm font-medium border-b border-gray-400 pb-2 mb-4">
@@ -176,7 +184,7 @@ export default function PrintBillingInvoice({ order }) {
                 (sum, r) => sum + r.goj,
                 0
               );
-              
+
               // MODIFIED LOGIC HERE: Calculate total rolls for the batch, excluding 0 goj entries
               const totalFinishRolls = finishingRows.reduce(
                 (sum, r) => sum + (r.goj > 0 ? r.rollCount : 0),
@@ -186,8 +194,10 @@ export default function PrintBillingInvoice({ order }) {
               return (
                 <div
                   key={index}
-                  className="border border-black"
-                  style={{ pageBreakInside: "avoid" }}
+                  style={{ 
+                    pageBreakInside: "avoid",
+                    border: "0.1px solid rgba(0, 0, 0, 0.6)" // ব্যাচের মেইন বর্ডার
+                  }}
                 >
                   {/* Batch Header */}
                   <div className="text-center font-bold border-b border-black py-1">
@@ -270,17 +280,33 @@ export default function PrintBillingInvoice({ order }) {
       </div>
 
       {/* Grand Summary */}
-      <div className="mt-16 border-b-2 border-black">
+      <div className="mt-16">
         <div
-          className="grid grid-cols-4 font-bold text-lg text-center border border-black"
-          style={{ backgroundColor: "#D3D3D3" }}
+          className="grid grid-cols-4 text-lg text-center"
+          style={{
+            backgroundColor: "#101828",
+            border: "0.5px solid rgba(0, 0, 0, 0.8)", // বর্ডার কালার ঝাপসা (Light) করা হয়েছে
+          }}
         >
-          <div className="py-2 border-r border-black">মোট গজ:</div>
-          <div className="py-2 border-r border-black">
+          <div
+            className="py-2"
+            style={{ borderRight: "0.1px solid rgba(0, 0, 0, 0.3)" }}
+          >
+            মোট গজ:
+          </div>
+          <div
+            className="py-2"
+            style={{ borderRight: "0.1px solid rgba(0, 0, 0, 0.3)" }}
+          >
             {grandTotalFinishGoj}
           </div>
-          <div className="py-2 border-r border-black">মোট রোল:</div>
-          <div className="py-2">{grandTotalFinishRolls}</div> {/* Uses the updated grand total */}
+          <div
+            className="py-2"
+            style={{ borderRight: "0.1px solid rgba(0, 0, 0, 0.3)" }}
+          >
+            মোট রোল:
+          </div>
+          <div className="py-2">{grandTotalFinishRolls}</div>
         </div>
       </div>
 
