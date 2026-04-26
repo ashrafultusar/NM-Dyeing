@@ -194,9 +194,9 @@ export default function PrintBillingInvoice({ order }) {
               return (
                 <div
                   key={index}
-                  style={{ 
+                  style={{
                     pageBreakInside: "avoid",
-                    border: "0.1px solid rgba(0, 0, 0, 0.6)" // ব্যাচের মেইন বর্ডার
+                    border: "0.1px solid rgba(0, 0, 0, 0.6)", // ব্যাচের মেইন বর্ডার
                   }}
                 >
                   {/* Batch Header */}
@@ -284,26 +284,16 @@ export default function PrintBillingInvoice({ order }) {
         <div
           className="grid grid-cols-4 text-lg text-center"
           style={{
-            backgroundColor: "#101828",
-            border: "0.5px solid rgba(0, 0, 0, 0.8)", // বর্ডার কালার ঝাপসা (Light) করা হয়েছে
+            border: "1px solid black",
           }}
         >
-          <div
-            className="py-2"
-            style={{ borderRight: "0.1px solid rgba(0, 0, 0, 0.3)" }}
-          >
+          <div className="py-2" style={{ borderRight: "1px solid black" }}>
             মোট গজ:
           </div>
-          <div
-            className="py-2"
-            style={{ borderRight: "0.1px solid rgba(0, 0, 0, 0.3)" }}
-          >
+          <div className="py-2" style={{ borderRight: "1px solid black" }}>
             {grandTotalFinishGoj}
           </div>
-          <div
-            className="py-2"
-            style={{ borderRight: "0.1px solid rgba(0, 0, 0, 0.3)" }}
-          >
+          <div className="py-2" style={{ borderRight: "1px solid black" }}>
             মোট রোল:
           </div>
           <div className="py-2">{grandTotalFinishRolls}</div>
