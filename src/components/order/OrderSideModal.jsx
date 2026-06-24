@@ -46,7 +46,7 @@ const OrderSideModal = ({
       document.body.removeChild(tempDiv);
     }, 500);
   };
-
+  console.log(selectedOrder);
   return (
     <AnimatePresence>
       {isModalOpen && (
@@ -118,21 +118,52 @@ const OrderSideModal = ({
                               </p>
                             </div>
                             <div>
-                              <p className="text-xs text-gray-500">Due Date</p>
+                              <p className="text-xs text-gray-500">
+                                DInvoice No.
+                              </p>
                               <p className="font-semibold">
-                                {formatDate(selectedOrder?.dueDate)}
+                                {selectedOrder?.invoiceNumber}
                               </p>
                             </div>
-                            <div>
-                              <p className="text-xs text-gray-500">Bundle</p>
-                              <p className="font-semibold">
-                                {selectedOrder?.bundle || "N/A"}
-                              </p>
-                            </div>
+
                             <div>
                               <p className="text-xs text-gray-500">Quantity</p>
                               <p className="font-semibold">
                                 {selectedOrder?.quality || "N/A"}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-gray-500">Colour</p>
+                              <p className="font-semibold">
+                                {selectedOrder?.colour || "N/A"}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-gray-500">Sill Name</p>
+                              <p className="font-semibold">
+                                {selectedOrder?.sillName || "N/A"}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-gray-500">
+                                Finishing Type
+                              </p>
+                              <p className="font-semibold">
+                                {selectedOrder?.finishingType || "N/A"}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-gray-500">Dyeing</p>
+                              <p className="font-semibold">
+                                {selectedOrder?.dyeingName || "N/A"}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-gray-500">
+                                Transporter
+                              </p>
+                              <p className="font-semibold">
+                                {selectedOrder?.transporterName || "N/A"}
                               </p>
                             </div>
                           </div>
