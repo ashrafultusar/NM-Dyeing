@@ -15,6 +15,8 @@ const OrderSideModal = ({
   selectedOrder,
   closeModal,
   confirmDelete,
+  setOrders,
+  setSelectedOrder,
 }) => {
   const router = useRouter();
   const [isDetailsOpen, setIsDetailsOpen] = useState(false); // Default open rakhle dekhte bhalo lage
@@ -207,8 +209,8 @@ const OrderSideModal = ({
                                 )
                               }
                               className={`flex-1 py-3 px-4 rounded-lg font-semibold transition ${hasBatch
-                                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                  : "bg-blue-600 text-white hover:bg-blue-700"
+                                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                : "bg-blue-600 text-white hover:bg-blue-700"
                                 }`}
                             >
                               <FaPencilAlt className="inline-block mr-2" /> Edit
@@ -231,7 +233,20 @@ const OrderSideModal = ({
                     currentStatus={selectedOrder?.status || "Pending"}
                     tableData={selectedOrder?.tableData || []}
                     onStatusChange={(newStatus) => {
-                      if (selectedOrder) selectedOrder.status = newStatus;
+                      if (selectedOrder) {
+                        if (setSelectedOrder) {
+                          setSelectedOrder({ ...selectedOrder, status: newStatus });
+                        }
+                        if (setOrders) {
+                          setOrders((prev) =>
+                            prev.map((order) =>
+                              order._id === selectedOrder._id
+                                ? { ...order, status: newStatus }
+                                : order
+                            )
+                          );
+                        }
+                      }
                     }}
                   />
                 </>

@@ -39,6 +39,7 @@ export const OrdersContent = () => {
 
   const {
     orders,
+    setOrders,
     totalPages,
     loadingOrder,
     selectedOrder,
@@ -174,6 +175,8 @@ export const OrdersContent = () => {
         selectedOrder={selectedOrder}
         closeModal={closeModal}
         confirmDelete={confirmDelete}
+        setOrders={setOrders}
+        setSelectedOrder={setSelectedOrder}
       />
 
       <ConfirmationModal
