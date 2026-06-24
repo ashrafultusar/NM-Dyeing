@@ -124,7 +124,7 @@ function LedgerTable({
                   className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase ${
                     initialPayment > 0 && initialCharge === 0
                       ? "bg-green-100 text-green-700"
-                      : initialCharge > 0 && initialPayment === 0
+                      : "initialCharge > 0 && initialPayment === 0"
                       ? "bg-red-100 text-red-700"
                       : "bg-indigo-100 text-indigo-700"
                   }`}
@@ -223,16 +223,43 @@ function LedgerTable({
                     {row.provider}
                   </span>
                 </td>
-                <td className="px-4 py-4 text-gray-700 text-xs">
+                
+                {/* Description Column updated with Cloth details */}
+                <td className="px-4 py-4 text-gray-700 text-xs min-w-[200px]">
                   <div className="font-bold text-gray-900">
                     {row.description}
                   </div>
-                  {row.colour && (
-                    <span className="text-[10px] text-gray-400 italic leading-none">
-                      {row.colour}
-                    </span>
-                  )}
+                  
+                  {/* Dynamic Metadata Tags */}
+                  <div className="flex flex-wrap gap-1 mt-1.5 max-w-[280px]">
+                    {row.clothType && (
+                      <span className="bg-gray-100 text-gray-800 text-[9px] px-1.5 py-0.5 rounded font-medium border border-gray-200">
+                        Type: {row.clothType}
+                      </span>
+                    )}
+                    {row.quality && (
+                      <span className="bg-blue-50 text-blue-700 text-[9px] px-1.5 py-0.5 rounded font-medium border border-blue-100">
+                        Quality: {row.quality}
+                      </span>
+                    )}
+                    {row.sillName && (
+                      <span className="bg-purple-50 text-purple-700 text-[9px] px-1.5 py-0.5 rounded font-medium border border-purple-100">
+                        Sill: {row.sillName}
+                      </span>
+                    )}
+                    {row.colour && (
+                      <span className="bg-pink-50 text-pink-700 text-[9px] px-1.5 py-0.5 rounded font-medium border border-pink-100">
+                        Color: {row.colour}
+                      </span>
+                    )}
+                    {row.finishingType && (
+                      <span className="bg-amber-50 text-amber-800 text-[9px] px-1.5 py-0.5 rounded font-medium border border-amber-100">
+                        Finish: {row.finishingType}
+                      </span>
+                    )}
+                  </div>
                 </td>
+
                 <td className="px-4 py-4 text-right whitespace-nowrap">
                   {row.charge > 0 ? (
                     <div className="text-gray-900 font-bold text-[11px]">
