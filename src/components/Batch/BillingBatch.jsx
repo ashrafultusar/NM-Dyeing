@@ -181,6 +181,7 @@ export default function BillingBatch({ orderId }) {
 
   // Billing logic (bidirectional)
   const handleBillingChange = (invoiceNumber, type, field, value, totalQty) => {
+    if (Number(value) < 0) return;
     setPriceByInvoice((prev) => {
       const current = prev[invoiceNumber]?.[type] || { price: "", total: "" };
       let price = current.price;
@@ -275,14 +276,14 @@ export default function BillingBatch({ orderId }) {
         const isMultiple = inv.batchCount > 1;
         const mergedRows = isMultiple
           ? inv.batches.flatMap((b) =>
-              (b.rows || []).map((r) => ({
-                ...r,
-                batchName: b.batchName,
-                sillName: b.sillName,
-                colour: b.colour,
-                finishingType: b.finishingType,
-              }))
-            )
+            (b.rows || []).map((r) => ({
+              ...r,
+              batchName: b.batchName,
+              sillName: b.sillName,
+              colour: b.colour,
+              finishingType: b.finishingType,
+            }))
+          )
           : [];
 
         return (
@@ -448,6 +449,7 @@ export default function BillingBatch({ orderId }) {
                                   {!isSaved && (
                                     <input
                                       type="number"
+                                      min="0"
                                       value={billing.price}
                                       onChange={(e) =>
                                         handleBillingChange(
@@ -472,6 +474,7 @@ export default function BillingBatch({ orderId }) {
                                   {!isSaved && (
                                     <input
                                       type="number"
+                                      min="0"
                                       value={billing.total}
                                       onChange={(e) =>
                                         handleBillingChange(
@@ -493,11 +496,10 @@ export default function BillingBatch({ orderId }) {
                                     onClick={() =>
                                       handleSaveSummary(inv, r, billing)
                                     }
-                                    className={`px-2 py-2 rounded m-1 ${
-                                      isSaved
+                                    className={`px-2 py-2 rounded m-1 ${isSaved
                                         ? "bg-gray-300 cursor-not-allowed"
                                         : "bg-green-400 hover:bg-green-500"
-                                    }`}
+                                      }`}
                                   >
                                     <TiTick />
                                   </button>

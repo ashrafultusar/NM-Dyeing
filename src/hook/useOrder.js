@@ -140,6 +140,7 @@ const useOrders = (filters) => {
 
   return {
     orders,
+    setOrders,
     totalPages,
     loadingOrder,
     selectedOrder,
