@@ -139,7 +139,7 @@ function CustomerSavedBillsTab({ customerId, selectedView, availableRows, onInvo
                                         {inv.orderIds?.length > 0 && `| Orders: ${inv.orderIds.join(", ")}`}
                                     </p>
                                     <p className="text-[10px] text-gray-400 mt-1 uppercase tracking-wider">
-                                 {fmtDate(inv.createdAt)}
+                                        {fmtDate(inv.createdAt)}
                                     </p>
                                 </div>
                                 <div className="flex items-center gap-4">
@@ -151,6 +151,12 @@ function CustomerSavedBillsTab({ customerId, selectedView, availableRows, onInvo
                                         <p className="text-[10px] text-gray-500 font-bold uppercase">Total Paid</p>
                                         <p className="text-sm font-black text-green-600">
                                             ৳{inv.totalPayment?.toLocaleString()}
+                                        </p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-[10px] text-gray-500 font-bold uppercase">Net Due</p>
+                                        <p className={`text-sm font-black ${((inv.totalCharge || 0) - (inv.totalPayment || 0)) > 0 ? "text-red-500" : "text-gray-900"}`}>
+                                            ৳{((inv.totalCharge || 0) - (inv.totalPayment || 0)).toLocaleString()}
                                         </p>
                                     </div>
                                     {selectedView === "current" && (

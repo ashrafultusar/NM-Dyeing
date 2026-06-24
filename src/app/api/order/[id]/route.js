@@ -6,7 +6,7 @@ export async function GET(request, { params }) {
   try {
     await connectDB();
 
-    const { id } =await params;
+    const { id } = await params;
     const order = await Order.findById(id);
 
     if (!order) {
@@ -73,6 +73,13 @@ export async function PUT(request, { params }) {
     }
 
     const body = await request.json();
+
+    if (body.tableData && Array.isArray(body.tableData)) {
+      body.tableData = body.tableData.map((row, index) => ({
+        ...row,
+        rollNo: index + 1,
+      }));
+    }
 
     const order = await Order.findById(id);
     if (!order) {

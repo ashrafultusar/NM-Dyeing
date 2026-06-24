@@ -15,9 +15,11 @@ const OrderSideModal = ({
   selectedOrder,
   closeModal,
   confirmDelete,
+  setOrders,
+  setSelectedOrder,
 }) => {
   const router = useRouter();
-  const [isDetailsOpen, setIsDetailsOpen] = useState(true); // Default open rakhle dekhte bhalo lage
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false); // Default open rakhle dekhte bhalo lage
   const [isClient, setIsClient] = useState(false);
   const printRef = useRef();
 
@@ -25,6 +27,22 @@ const OrderSideModal = ({
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  const [hasBatch, setHasBatch] = useState(false);
+
+  useEffect(() => {
+    if (selectedOrder?._id) {
+      fetch(`/api/batch/${selectedOrder._id}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (Array.isArray(data) && data.length > 0) setHasBatch(true);
+          else if (data && data.batches && data.batches.length > 0)
+            setHasBatch(true);
+          else setHasBatch(false);
+        })
+        .catch(() => setHasBatch(false));
+    }
+  }, [selectedOrder]);
 
   const formatDate = (dateString) => {
     if (!isClient || !dateString) return "Loading...";
@@ -118,21 +136,52 @@ const OrderSideModal = ({
                               </p>
                             </div>
                             <div>
-                              <p className="text-xs text-gray-500">Due Date</p>
+                              <p className="text-xs text-gray-500">
+                                DInvoice No.
+                              </p>
                               <p className="font-semibold">
-                                {formatDate(selectedOrder?.dueDate)}
+                                {selectedOrder?.invoiceNumber}
                               </p>
                             </div>
-                            <div>
-                              <p className="text-xs text-gray-500">Bundle</p>
-                              <p className="font-semibold">
-                                {selectedOrder?.bundle || "N/A"}
-                              </p>
-                            </div>
+
                             <div>
                               <p className="text-xs text-gray-500">Quantity</p>
                               <p className="font-semibold">
                                 {selectedOrder?.quality || "N/A"}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-gray-500">Colour</p>
+                              <p className="font-semibold">
+                                {selectedOrder?.colour || "N/A"}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-gray-500">Sill Name</p>
+                              <p className="font-semibold">
+                                {selectedOrder?.sillName || "N/A"}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-gray-500">
+                                Finishing Type
+                              </p>
+                              <p className="font-semibold">
+                                {selectedOrder?.finishingType || "N/A"}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-gray-500">Dyeing</p>
+                              <p className="font-semibold">
+                                {selectedOrder?.dyeingName || "N/A"}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-gray-500">
+                                Transporter
+                              </p>
+                              <p className="font-semibold">
+                                {selectedOrder?.transporterName || "N/A"}
                               </p>
                             </div>
                           </div>
@@ -153,12 +202,16 @@ const OrderSideModal = ({
 
                           <div className="pt-4 border-t flex justify-between gap-4">
                             <button
+                              disabled={hasBatch}
                               onClick={() =>
                                 router.push(
                                   `/dashboard/order/update/${selectedOrder?._id}`
                                 )
                               }
-                              className="flex-1 py-3 px-4 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition"
+                              className={`flex-1 py-3 px-4 rounded-lg font-semibold transition ${hasBatch
+                                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                : "bg-blue-600 text-white hover:bg-blue-700"
+                                }`}
                             >
                               <FaPencilAlt className="inline-block mr-2" /> Edit
                             </button>
@@ -180,7 +233,20 @@ const OrderSideModal = ({
                     currentStatus={selectedOrder?.status || "Pending"}
                     tableData={selectedOrder?.tableData || []}
                     onStatusChange={(newStatus) => {
-                      if (selectedOrder) selectedOrder.status = newStatus;
+                      if (selectedOrder) {
+                        if (setSelectedOrder) {
+                          setSelectedOrder({ ...selectedOrder, status: newStatus });
+                        }
+                        if (setOrders) {
+                          setOrders((prev) =>
+                            prev.map((order) =>
+                              order._id === selectedOrder._id
+                                ? { ...order, status: newStatus }
+                                : order
+                            )
+                          );
+                        }
+                      }
                     }}
                   />
                 </>
