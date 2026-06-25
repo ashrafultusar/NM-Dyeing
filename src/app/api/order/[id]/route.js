@@ -7,6 +7,13 @@ export async function GET(request, { params }) {
     await connectDB();
 
     const { id } = await params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return new Response(JSON.stringify({ error: "Invalid ID format" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
     const order = await Order.findById(id);
 
     if (!order) {
@@ -33,7 +40,14 @@ export async function DELETE(request, { params }) {
   try {
     await connectDB();
 
-    const { id } = params;
+    const { id } = await params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return new Response(JSON.stringify({ error: "Invalid ID format" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
     const order = await Order.findById(id);
 
     if (!order) {
@@ -109,7 +123,7 @@ export async function PUT(request, { params }) {
 export async function PATCH(request, { params }) {
   try {
     await connectDB();
-    const { id } = params;
+    const { id } = await params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return new Response(JSON.stringify({ error: "Invalid ID format" }), {

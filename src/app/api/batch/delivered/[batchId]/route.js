@@ -1,13 +1,18 @@
 import connectDB from "@/lib/db";
 import Batch from "@/models/Batch";
 import { NextResponse } from "next/server";
+import mongoose from "mongoose";
 
 
 export async function GET(req, { params }) {
   await connectDB();
 
   try {
-    const { batchId } = params;
+    const { batchId } = await params;
+
+    if (!batchId || !mongoose.Types.ObjectId.isValid(batchId)) {
+      return NextResponse.json({ error: "Invalid Batch ID format" }, { status: 400 });
+    }
 
     const batchDoc = await Batch.findOne({ "batches._id": batchId });
 
@@ -33,7 +38,12 @@ export async function PUT(req, { params }) {
   await connectDB();
 
   try {
-    const { batchId } = params;
+    const { batchId } = await params;
+
+    if (!batchId || !mongoose.Types.ObjectId.isValid(batchId)) {
+      return NextResponse.json({ error: "Invalid Batch ID format" }, { status: 400 });
+    }
+
     const body = await req.json();
 
     const { updatedRows } = body;

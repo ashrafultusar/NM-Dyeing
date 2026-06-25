@@ -3,14 +3,15 @@ import connectDB from "@/lib/db";
 import Batch from "@/models/Batch";
 import Invoice from "@/models/Invoice";
 import { NextResponse } from "next/server";
+import mongoose from "mongoose";
 
 export async function GET(req, { params }) {
   try {
     await connectDB();
-    const { orderId } = params;
+    const { orderId } = await params;
 
-    if (!orderId) {
-      return NextResponse.json({ error: "Order ID is required" }, { status: 400 });
+    if (!orderId || !mongoose.Types.ObjectId.isValid(orderId)) {
+      return NextResponse.json({ error: "Invalid Order ID" }, { status: 400 });
     }
 
     // 🧾 Find all invoices of this order

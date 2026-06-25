@@ -28,7 +28,7 @@ export default function DeliveredBatchList({ orderId }) {
       } else toast.error(data.error || "Failed to load delivered batches");
     } catch (err) {
       console.error(err);
-      toast.error("Server error while fetching delivered batches");
+      
     } finally {
       setLoading(false);
     }

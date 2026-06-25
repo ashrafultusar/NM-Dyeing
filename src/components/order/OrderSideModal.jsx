@@ -208,10 +208,11 @@ const OrderSideModal = ({
                                   `/dashboard/order/update/${selectedOrder?._id}`
                                 )
                               }
-                              className={`flex-1 py-3 px-4 rounded-lg font-semibold transition ${hasBatch
-                                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                : "bg-blue-600 text-white hover:bg-blue-700"
-                                }`}
+                              className={`flex-1 py-3 px-4 rounded-lg font-semibold transition ${
+                                hasBatch
+                                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                  : "bg-blue-600 text-white hover:bg-blue-700"
+                              }`}
                             >
                               <FaPencilAlt className="inline-block mr-2" /> Edit
                             </button>
@@ -235,7 +236,10 @@ const OrderSideModal = ({
                     onStatusChange={(newStatus) => {
                       if (selectedOrder) {
                         if (setSelectedOrder) {
-                          setSelectedOrder({ ...selectedOrder, status: newStatus });
+                          setSelectedOrder({
+                            ...selectedOrder,
+                            status: newStatus,
+                          });
                         }
                         if (setOrders) {
                           setOrders((prev) =>

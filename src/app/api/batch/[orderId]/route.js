@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Batch from "@/models/Batch";
+import mongoose from "mongoose";
 
 
 // export async function GET(req, { params }) {
 //   try {
-  
+
 //     await connectDB();
 //     const { orderId } = params;
 
@@ -34,7 +35,11 @@ import Batch from "@/models/Batch";
 export async function GET(req, { params }) {
   try {
     await connectDB();
-    const { orderId } = params;
+    const { orderId } = await params;
+
+    if (!orderId || !mongoose.Types.ObjectId.isValid(orderId)) {
+      return NextResponse.json({ error: "Invalid order ID" }, { status: 400 });
+    }
 
     const batchDoc = await Batch.findOne({ orderId });
 
@@ -59,7 +64,11 @@ export async function GET(req, { params }) {
 export async function DELETE(req, { params }) {
   await connectDB();
   try {
-    const { orderId } = params;
+    const { orderId } = await params;
+
+    if (!orderId || !mongoose.Types.ObjectId.isValid(orderId)) {
+      return NextResponse.json({ error: "Invalid order ID" }, { status: 400 });
+    }
 
     // 🔹 Get batchId from query string: /api/batch/[orderId]?batchId=xxxx
     const { searchParams } = new URL(req.url);

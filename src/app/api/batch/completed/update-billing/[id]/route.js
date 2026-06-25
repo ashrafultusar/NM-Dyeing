@@ -52,17 +52,18 @@
 import connectDB from "@/lib/db";
 import BillingSummary from "@/models/BillingSummary";
 import { NextResponse } from "next/server";
+import mongoose from "mongoose";
 
 
 export async function PUT(req, { params }) {
   await connectDB();
 
   try {
-    const { id } = params;
+    const { id } = await params;
 
-    if (!id) {
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
-        { error: "Batch ID is required" },
+        { error: "Invalid Batch ID" },
         { status: 400 }
       );
     }
