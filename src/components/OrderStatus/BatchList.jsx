@@ -67,7 +67,7 @@ export default function BatchList({ orderId }) {
         }
       } catch (err) {
         console.error(err);
-        toast.error("Server error while fetching batches");
+        
       } finally {
         setLoading(false);
       }

@@ -21,11 +21,12 @@ const useOrders = (filters) => {
 
   const [orders, setOrders] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
+  const [loadingOrders, setLoadingOrders] = useState(true);
   const [loadingOrder, setLoadingOrder] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
 
-
   const fetchOrders = async () => {
+    setLoadingOrders(true);
     let startDate = "";
     let endDate = "";
     const today = dayjs();
@@ -87,6 +88,8 @@ const useOrders = (filters) => {
     } catch (err) {
       console.error("Error fetching orders:", err);
       toast.error("Error fetching orders. Please try again.");
+    } finally {
+      setLoadingOrders(false);
     }
   };
 
@@ -142,6 +145,7 @@ const useOrders = (filters) => {
     orders,
     setOrders,
     totalPages,
+    loadingOrders,
     loadingOrder,
     selectedOrder,
     setSelectedOrder,
