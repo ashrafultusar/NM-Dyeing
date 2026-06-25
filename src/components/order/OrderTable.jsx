@@ -2,7 +2,7 @@ import React from "react";
 import { LuTrash2 } from "react-icons/lu";
 
 const getStatusColor = (status) => {
-  
+
   const s = status?.toLowerCase();
 
   switch (s) {
@@ -35,11 +35,19 @@ const getPaymentColor = (payment) => {
     : "bg-red-100 text-red-700";
 };
 
-const OrderTable = ({ orders, handleOrderClick, confirmDelete }) => {
-  if (!orders || orders.length === 0) {
+const OrderTable = ({ orders, loadingOrders, handleOrderClick, confirmDelete }) => {
+  if (loadingOrders) {
     return (
       <div className="flex justify-center items-center h-96">
         <div className="w-12 h-12 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (!orders || orders.length === 0) {
+    return (
+      <div className="flex justify-center items-center h-96">
+        <p className="text-gray-500 font-medium">No orders found.</p>
       </div>
     );
   }
@@ -94,11 +102,11 @@ const OrderTable = ({ orders, handleOrderClick, confirmDelete }) => {
                 {order?.totalGoj !== null && order?.totalGoj !== undefined
                   ? order?.totalGoj
                   : order?.tableData && order?.tableData.length > 0
-                  ? order.tableData.reduce(
+                    ? order.tableData.reduce(
                       (sum, item) => sum + (item.goj || 0),
                       0
                     )
-                  : "N/A"}
+                    : "N/A"}
               </td>
 
               <td className="p-4 whitespace-nowrap">

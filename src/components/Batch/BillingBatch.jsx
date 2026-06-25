@@ -59,7 +59,7 @@ export default function BillingBatch({ orderId }) {
       if (orderRes.ok) setOrderInfo(orderData);
     } catch (err) {
       console.error(err);
-      toast.error("Server error while fetching data");
+     
     } finally {
       setLoading(false);
     }

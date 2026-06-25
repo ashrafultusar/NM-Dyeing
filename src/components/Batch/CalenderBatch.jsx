@@ -29,7 +29,7 @@ export default function CalendarBatch({ orderId }) {
         }
       } catch (err) {
         console.error(err);
-        toast.error("Server error while fetching delivered batches");
+       
       } finally {
         setLoading(false);
       }

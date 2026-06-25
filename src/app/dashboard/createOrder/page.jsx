@@ -407,17 +407,18 @@ const Page = () => {
                 </tr>
               </thead>
               <tbody>
-                {tableData.map((row, idx) => (
+                {tableData?.map((row, idx) => (
                   <tr key={idx}>
                     <td className="border px-2 py-1 text-center">{idx + 1}</td>
                     <td className="border px-2 py-1">
                       <input
                         type="number"
-                        name="goj"
+                        name="goj" min="0"
                         ref={(el) => (inputRefs.current[idx] = el)}
                         value={row.goj ?? ""}
                         onChange={(e) => handleTableChange(idx, e)}
                         onKeyDown={(e) => handleKeyDown(e, idx)}
+                        onWheel={(e) => e.target.blur()}
                         className="w-full border px-2 py-1"
                       />
                     </td>

@@ -41,6 +41,7 @@ export const OrdersContent = () => {
     orders,
     setOrders,
     totalPages,
+    loadingOrders,
     loadingOrder,
     selectedOrder,
     setSelectedOrder,
@@ -154,6 +155,7 @@ export const OrdersContent = () => {
 
       <OrderTable
         orders={orders}
+        loadingOrders={loadingOrders}
         handleOrderClick={handleOrderClick}
         confirmDelete={confirmDelete}
       />
